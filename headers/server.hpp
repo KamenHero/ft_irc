@@ -14,4 +14,5 @@ class Server {
 		void	importConfig(char **argv);
 		void	hostServer();
 		void	awaitingTraffic();
+		void	ClientResponse();
 };
