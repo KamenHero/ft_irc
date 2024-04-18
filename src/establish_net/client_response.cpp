@@ -1,3 +1,3 @@
-#include "server.hpp"
+#include <server.hpp>
 
-void	Server::ClientResponse() {}
+void	Server::clientResponse() {}

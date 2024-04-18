@@ -2,17 +2,27 @@
 
 #include <iostream>
 #include <vector>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstdlib>
+#include <stdexcept>
+#include <limits.h>
+#include <netinet/in.h>
 #include "client.hpp"
 
 class Server {
 	private:
 		int			port;
 		std::string	password;
+		int server_fd;
 		std::vector<Client>	clients;
 
+
 	public:
-		void	importConfig(char **argv);
+		void	importConfig(std::string importedPort, std::string importedPassword);
 		void	hostServer();
 		void	awaitingTraffic();
-		void	ClientResponse();
+		void	clientResponse();
 };

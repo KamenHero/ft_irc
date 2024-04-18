@@ -1,6 +1,6 @@
 COMPILER = c++
 
-CPPFLAGS = -Wall -Werror -Wextra -std=c++98
+CPPFLAGS = -I headers/ -Wall -Werror -Wextra -std=c++98
 
 SRCS = src/main.cpp src/establish_net/import_config.cpp \
 		src/establish_net/host_server.cpp \

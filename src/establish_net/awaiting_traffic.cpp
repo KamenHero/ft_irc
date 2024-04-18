@@ -1,3 +1,6 @@
-#include "server.hpp"
+#include <server.hpp>
 
-void	Server::awaitingTraffic() {}
+void	Server::awaitingTraffic()
+{
+
+}
