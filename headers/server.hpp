@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <limits.h>
+#include <vector>
 #include <netinet/in.h>
 #include "client.hpp"
 
@@ -26,6 +27,8 @@ class Server {
 		void	hostServer();
 		void	awaitingTraffic();
 		void	clientResponse();
+		void	clearClients(std::vector<int> clientsToBeRemoved, fd_set &totalfds);
+		void	handleResponseRequest(Client &client);
 
 		void	handleReadRequest(Client &client);
 };
