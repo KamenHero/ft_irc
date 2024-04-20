@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include "client.hpp"
 
+
 class Server {
 	private:
 		int			port;
@@ -25,4 +26,6 @@ class Server {
 		void	hostServer();
 		void	awaitingTraffic();
 		void	clientResponse();
+
+		void	handleReadRequest(Client &client);
 };

@@ -42,9 +42,8 @@ void	Server::awaitingTraffic()
 
 		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 		{
-			if (FD_ISSET(it->first, &readfds)) {}
-
-			if (FD_ISSET(it->first, &writefds)) {}
+			if (FD_ISSET(it->first, &readfds)) handleReadRequest(it->second);
+			else if (FD_ISSET(it->first, &writefds)) {}
 		}
 	}
 }

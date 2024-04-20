@@ -7,7 +7,7 @@ SRCS = src/main.cpp src/establish_net/import_config.cpp \
 		src/establish_net/client_response.cpp \
 		src/establish_net/awaiting_traffic.cpp
 
-HEADERS = headers/client.hpp headers/client.hpp
+HEADERS = headers/server.hpp headers/client.hpp
 
 NAME = ircserv
 
