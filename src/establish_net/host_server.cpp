@@ -6,7 +6,7 @@
 /*   By: oryadi <oryadi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 16:34:44 by oryadi            #+#    #+#             */
-/*   Updated: 2024/04/18 19:41:16 by oryadi           ###   ########.fr       */
+/*   Updated: 2024/04/19 16:01:57 by oryadi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,5 +35,5 @@ void	Server::hostServer()
 	if (listen(server_fd, SOMAXCONN) < 0)
 		throw std::runtime_error("Cannot listen to socket.");
 
-	std::cout << "irc is listening at 0.0.0.0:" << port << std::endl; 
+	std::cout << "irc is listening at 0.0.0.0:" << port << std::endl;
 }

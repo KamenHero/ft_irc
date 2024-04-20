@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
+#include <map>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -17,7 +17,7 @@ class Server {
 		int			port;
 		std::string	password;
 		int server_fd;
-		std::vector<Client>	clients;
+		std::map<int, Client>	clients;
 
 
 	public:
