@@ -3,18 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oryadi <oryadi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 17:29:06 by oryadi            #+#    #+#             */
-/*   Updated: 2024/04/17 22:58:41 by oryadi           ###   ########.fr       */
+/*   Updated: 2024/04/22 16:14:42 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include "server.hpp"
+#include "../headers/server.hpp"
 
 int main(int argc, char **argv) {
 	if (argc != 3) {
+		
 		std::cerr << "You must include PORT and PASSWORD to proceed." << std::endl;
 		
 		return (1);
@@ -26,6 +27,8 @@ int main(int argc, char **argv) {
 		server.importConfig(argv[1], argv[2]);
 
 		server.hostServer();
+
+		server.awaitingTraffic();
 	} catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
 		

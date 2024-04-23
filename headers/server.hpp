@@ -12,14 +12,16 @@
 #include <vector>
 #include <netinet/in.h>
 #include "client.hpp"
-
+#include <errno.h>
 
 class Server {
+	
 	private:
 		int			port;
 		std::string	password;
-		int server_fd;
+		int 		server_fd;
 		std::map<int, Client>	clients;
+		sockaddr_in address;
 
 
 	public:
