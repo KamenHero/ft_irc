@@ -5,7 +5,9 @@ CPPFLAGS = -I headers/ -Wall -Werror -Wextra -std=c++98
 SRCS = src/main.cpp src/establish_net/import_config.cpp \
 		src/establish_net/host_server.cpp \
 		src/establish_net/client_response.cpp \
-		src/establish_net/awaiting_traffic.cpp
+		src/establish_net/awaiting_traffic.cpp \
+		src/establish_net/handling.cpp \
+		src/commands/pass.cpp
 
 HEADERS = headers/server.hpp headers/client.hpp
 

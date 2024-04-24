@@ -8,15 +8,18 @@ void	acceptIncomingConnection(std::map<int, Client> &clients, fd_set &totalfds, 
 
 	int newfd = accept(server_fd, &client_s, &client_length);
 
-	if (newfd < 0) throw std::runtime_error("Systemcall `accept` failed.");
+	if (newfd == -1)
+		return;
+
+	// if (newfd < 0) throw std::runtime_error("Systemcall `accept` failed.");
+
+	std::cout << newfd << " connected..." << std::endl;
 
 	FD_SET(newfd, &totalfds);
 
 	Client client;
 
 	client.socket_fd = newfd;
-
-	std::cout << newfd << " connected..." << std::endl;
 
 	clients.insert(std::make_pair(newfd, client));
 }
@@ -28,7 +31,7 @@ void	Server::clearClients(std::vector<int> BeRemoved, fd_set &totalfds)
 		std::map<int, Client>::iterator clientFound = clients.find(*it);
 
 		close(clientFound->first);
-		
+
 		clients.erase(clientFound);
 
 		FD_CLR(*it, &totalfds);
@@ -42,8 +45,8 @@ void    Server::handleReadRequest(Client &client)
 
 	if (bytes_received == -1)
 	{
-		std::cerr << "error reveving data from client" << std::endl;
-		exit(1);
+		std::cerr << "error receving data from client" << std::endl;
+		// exit(1);
 	}
     if (bytes_received > 0)
 	{
@@ -51,13 +54,11 @@ void    Server::handleReadRequest(Client &client)
         client.buffer += buf;
 
         std::string::size_type pos;
-        while ((pos = client.buffer.find("\n")) != std::string::npos) 
+        while ((pos = client.buffer.find("\n")) != std::string::npos)
 		{
-			// std::cout << "<< "<< client.buffer << " >>"<< std::endl;
             std::string command = client.buffer.substr(0, pos);
-			std::cout << "--> " << command << std::endl;
             // Process IRC command here
-            // parse_and_process_command(client, command);
+            parse_and_process_command(client, command);
             client.buffer.erase(0, pos + 1);
         }
     } else if (bytes_received == 0 || (bytes_received == -1 && errno != EWOULDBLOCK)) {
@@ -77,12 +78,12 @@ void	Server::awaitingTraffic()
 	FD_SET(server_fd, &totalfds);
 
 	while(true) {
-		
+
 		readfds = writefds = totalfds;
 
 		int	res = select(FD_SETSIZE, &readfds, &writefds, NULL, NULL);
 
-		if (res < 0) throw std::runtime_error("Systemcall `select()` failed.");
+		// if (res < 0) throw std::runtime_error("Systemcall `select()` failed.");
 
 		if (!res) continue ;
 

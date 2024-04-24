@@ -14,8 +14,15 @@
 #include "client.hpp"
 #include <errno.h>
 
+struct request {
+
+	std::string commands;
+	std::vector<std::string> arg;
+	int statu;
+};
+
 class Server {
-	
+
 	private:
 		int			port;
 		std::string	password;
@@ -31,6 +38,13 @@ class Server {
 		void	clientResponse();
 		void	clearClients(std::vector<int> clientsToBeRemoved, fd_set &totalfds);
 		void	handleResponseRequest(Client &client);
-
 		void	handleReadRequest(Client &client);
+	/*-------------------------------CPMMAND-----------------------------------------------------*/
+		void send_message(int sockfd, const std::string &message);
+		std::string split(std::string const &str);
+		int parss_Request(const std::string &command, request &p);
+		void parse_and_process_command(Client &client, const std::string &command);
+
+		int pass(Client &client, request &p);
+		// void user(Client &client, request &p);
 };
