@@ -20,7 +20,9 @@ struct Client {
 
 	/* authentification of client */
 	std::string pass;
-	std::string nickName ;
+	std::string nickName;
+	std::string hostName;
+	std::string serverName;
 	std::string userName;
 	std::string realName;
 	std::string buffer;
