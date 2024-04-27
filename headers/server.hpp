@@ -50,8 +50,8 @@ class Server {
 		// int parss_Request(const std::string &command, request &p);
 		// void parse_and_process_command(Client &client, const std::string &command);
 
-		int pass(Client &client, request &p);
+		int pass(Client &client, request &p, int *count);
 		int getAuthentified(Client& cli, request&);
-		void Nick(Client& Client, request &p);
-		void user(Client& client, request &p);
+		void Nick(Client& Client, request &p, int *count);
+		void user(Client& client, request &p, int *count);
 };

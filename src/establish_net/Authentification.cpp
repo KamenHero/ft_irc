@@ -10,9 +10,9 @@
 // /*                                                                            */
 // /* ************************************************************************** */
 
-// /*  step 1 : connecting to the server 
+// /*  step 1 : connecting to the server
 //     step 2 : authentification the user
-//     step 3 : join the channel 
+//     step 3 : join the channel
 // */
 
 #include "../../headers/server.hpp"
@@ -25,20 +25,21 @@ int Server::getAuthentified(Client& cli, request& req)
     if (req.cmd == "PASS" || req.cmd == "pass")
     {
         count = 1;
-        pass(cli, req);
+        pass(cli, req, &count);
     }
     else if ((req.cmd == "NICK" || req.cmd == "nick") && count == 1)
     {
         count = 2;
-        Nick(cli, req);
+        Nick(cli, req, &count);
     }
     else if ((req.cmd == "USER" || req.cmd == "user") && count == 2)
     {
         count = 3;
-        user(cli, req);
+        user(cli, req, &count);
     }
     else
         std::cout << req.cmd << " not a command" << std::endl;
+    std::cout  << "count : " << count << std::endl;
 
     return (count);
 }

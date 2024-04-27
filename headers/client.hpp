@@ -17,6 +17,7 @@ struct Client {
 
 	int	socket_fd;
 	int step;
+	
 
 	/* authentification of client */
 	std::string pass;
