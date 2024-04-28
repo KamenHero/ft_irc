@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/04/28 15:24:29 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/04/28 19:31:25 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,8 @@ void    Server::handleReadRequest(Client &client)
 	if (getAuthentified(client, req) == 3)
 	{
 		send_message(client.socket_fd, RPL_WELCOME(client.nickName));
-		req.statu = 1;
+		client.step =  C_READ_REQUEST;
+		client.authenticated = true;
 	}
 
 }
@@ -116,7 +117,7 @@ void	Server::awaitingTraffic()
 			{
 				handleReadRequest(it->second);
 			}
-			else if (FD_ISSET(it->first, &writefds)) handleResponseRequest(it->second);
+			// else if (FD_ISSET(it->first, &writefds)) handleResponseRequest(it->second);
 		}
 
 		clearClients(clientsReadyToBeRemoved, totalfds);

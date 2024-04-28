@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 16:47:59 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/04/28 15:07:52 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/04/28 19:27:18 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ int Server::pass(Client& client, request &p, int *count)
         std::cout << "hello from pass cmd " <<  std::endl;
         send_message(client.socket_fd, ":localhost 462 " + client.nickName + " :You may not reregister\r\n");
     }
-    client.authenticated = true;
     return 0;
 }
 

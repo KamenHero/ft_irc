@@ -39,7 +39,6 @@ int Server::getAuthentified(Client& cli, request& req)
     }
     else
         std::cout << req.cmd << " not a command" << std::endl;
-    std::cout  << "count : " << count << std::endl;
 
     return (count);
 }
