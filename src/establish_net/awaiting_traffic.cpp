@@ -1,4 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   awaiting_traffic.cpp                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
+/*   Updated: 2024/04/28 23:57:55 by hchaguer         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../headers/server.hpp"
+#include <cstddef>
+#include <sstream>
+#include <string>
 
 void	acceptIncomingConnection(std::map<int, Client> &clients, fd_set &totalfds, int server_fd)
 {
@@ -40,31 +55,40 @@ void	Server::clearClients(std::vector<int> BeRemoved, fd_set &totalfds)
 
 void    Server::handleReadRequest(Client &client)
 {
-    char buf[BUFFER_SIZE];
-    int bytes_received = recv(client.socket_fd, buf, BUFFER_SIZE - 1, 0);
+    char buf[1024];	
+	request req;
+
+	std::memset(buf, 0, sizeof(buf));
+    int bytes_received = recv(client.socket_fd, buf, sizeof(buf), 0);
 
 	if (bytes_received == -1)
 	{
 		std::cerr << "error receving data from client" << std::endl;
-		// exit(1);
 	}
     if (bytes_received > 0)
 	{
         buf[bytes_received] = '\0';
-        client.buffer += buf;
-
-        std::string::size_type pos;
-        while ((pos = client.buffer.find("\n")) != std::string::npos)
+		std::stringstream iss(buf);
+		std::string line;
+		iss >> req.cmd;
+		
+		while (iss >> line)
 		{
-            std::string command = client.buffer.substr(0, pos);
-            // Process IRC command here
-            parse_and_process_command(client, command);
-            client.buffer.erase(0, pos + 1);
-        }
-    } else if (bytes_received == 0 || (bytes_received == -1 && errno != EWOULDBLOCK)) {
-        // Connection closed by client or error
-        client.step = C_CLOSE_CONNECTION;
+			req.arg.push_back(line);
+		}
     }
+	if (getAuthentified(client, req) == 3)
+	{
+		send_message(client.socket_fd, RPL_WELCOME(client.nickName));
+		send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
+		send_message(client.socket_fd, RPL_CREATED(client.nickName));
+		send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
+		std::cout << client.nickName << " Welcome to irc server!" << std::endl;
+		
+		
+	}
+	// commands(req, client);
+
 }
 
 void	Server::awaitingTraffic()

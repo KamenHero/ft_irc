@@ -1,11 +1,14 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
+#pragma once
 
 #include "server.hpp"
 #include <string>
 
 
 class   Channel {
+
+
     public:
         std::string _name;
         std::string _pass;
@@ -13,7 +16,7 @@ class   Channel {
         bool    hasPassword;
         int ownr_mam;
 
-        std::vector<Client > _members;
+        std::vector<Client> _members;
 
         Client* admin;
 
@@ -22,6 +25,8 @@ class   Channel {
         ~Channel();
         // void    removeMember(const std::string& nickname);
         void update_onlinemembers();
+
+        
 };
 
 #endif

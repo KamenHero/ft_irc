@@ -60,7 +60,6 @@ std::string Server::join(Client &client, request &p)
             } else {
                 std::cout << "channel kaina walkin machi member !\n";
                 send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + channel + "\r\n");
-
                 joinChannel(p.arg[i], client);
                 ++i;
                 continue;
