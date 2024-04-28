@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/04/28 00:20:46 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/04/28 15:24:29 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ void	Server::awaitingTraffic()
 			{
 				handleReadRequest(it->second);
 			}
-			// else if (FD_ISSET(it->first, &writefds)) handleResponseRequest(it->second);
+			else if (FD_ISSET(it->first, &writefds)) handleResponseRequest(it->second);
 		}
 
 		clearClients(clientsReadyToBeRemoved, totalfds);

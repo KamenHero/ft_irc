@@ -6,12 +6,11 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 16:47:59 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/04/28 00:40:15 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/04/28 15:07:52 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../headers/server.hpp"
-#include <cstddef>
 
 
 int Server::pass(Client& client, request &p, int *count)
@@ -84,23 +83,12 @@ void Server::user(Client& cli, request &p, int *count)
         cli.userName = p.arg[0];
         cli.hostName = p.arg[1];
         cli.serverName = p.arg[2];
-        // if (p.arg[3] == ":"+ p.arg[3])
-        // {
-            // std::cout  << "count 1 : " << count << std::endl;
+        if (p.arg[3].find(":") != std::string::npos)
             cli.realName = p.arg[3];
-        // }
-        // else
-        // {
-        //     send_message(cli.socket_fd, ":localhost 462 " + cli.nickName + " :You may not reregister\r\n");
-        //     *count = 2;
-        // }
-        
+        else
+        {
+            *count = 2;
+            send_message(cli.socket_fd, ":localhost 462 " + cli.nickName + " :You may not reregister\r\n");
+        }
     }
-
-    // user hostname realname
-        // std::cout << "this nick : " << user << std::endl;
-    // for (size_t i = 0; i < p.arg.size(); i++)
-    // {
-    //     std::cout << "arg : " << p.arg.at(i) << std::endl;
-    // }
 }
