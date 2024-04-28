@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/04/28 23:57:55 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/04/29 00:19:56 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,15 +79,18 @@ void    Server::handleReadRequest(Client &client)
     }
 	if (getAuthentified(client, req) == 3)
 	{
+		if (client.authenticated == false)
+		{
 		send_message(client.socket_fd, RPL_WELCOME(client.nickName));
 		send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
 		send_message(client.socket_fd, RPL_CREATED(client.nickName));
 		send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
-		std::cout << client.nickName << " Welcome to irc server!" << std::endl;
+			std::cout << client.nickName << " Welcome to irc server!" << std::endl;
+			client.authenticated = true;
+		}
 		
-		
+		// commands(req, client);
 	}
-	// commands(req, client);
 
 }
 

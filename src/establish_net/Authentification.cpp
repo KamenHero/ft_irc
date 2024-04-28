@@ -21,7 +21,7 @@
 int Server::getAuthentified(Client& cli, request& req)
 {
     static int count;
-
+        
     if (req.cmd == "PASS" || req.cmd == "pass")
     {
         count = 1;

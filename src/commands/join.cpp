@@ -25,6 +25,11 @@ void Server::joinChannel(std::string &channel, Client &t)
     // channels[channel]->setop(client[fd]);
 }
 
+// void send_message(Client& cli, request& rep)
+// {
+//     // fd arg cmd
+// }
+
 
 std::string Server::join(Client &client, request &p)
 {
