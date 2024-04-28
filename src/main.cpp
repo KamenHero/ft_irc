@@ -6,7 +6,7 @@
 /*   By: mkatfi <mkatfi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 17:29:06 by oryadi            #+#    #+#             */
-/*   Updated: 2024/04/23 14:28:32 by mkatfi           ###   ########.fr       */
+/*   Updated: 2024/04/28 02:22:35 by mkatfi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ int main(int argc, char **argv) {
 		server.importConfig(argv[1], argv[2]);
 		server.hostServer();
 		server.awaitingTraffic();
-
 	} catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
 

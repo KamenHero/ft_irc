@@ -17,21 +17,23 @@ struct Client {
 
 	int	socket_fd;
 	int step;
-	
 
 	/* authentification of client */
 	std::string pass;
-	std::string nickName;
-	std::string hostName;
-	std::string serverName;
+	std::string nickName ;
 	std::string userName;
 	std::string realName;
 	std::string buffer;
   	bool authenticated;
+	std::vector< std::string> _channel;
 
 	Client() {
 
 		this->step = C_ESTABLISHING_CONNECTION;
 		this->authenticated = false;
 	}
+	Client(int fd){
+		socket_fd = fd;
+	}
+
 };
