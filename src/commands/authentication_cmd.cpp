@@ -6,29 +6,29 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 16:47:59 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/04/28 19:27:18 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/04/29 14:54:43 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../headers/server.hpp"
 
 
-int Server::pass(Client& client, request &p, int *count)
+int Server::pass(Client& client, request &p)
 {
     if (p.arg.empty())
     {
         send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
-        *count = 0;
+        client.count = 0;
     }
     else if (p.arg.size() != 1)
     {
         send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
-        *count = 0;
+        client.count = 0;
     }
     else if (p.arg[0] != this->password)
     {
         send_message(client.socket_fd, ERR_PASSWDMISMATCH());
-        *count = 0;
+        client.count = 0;
     }
     else
     {
@@ -39,7 +39,7 @@ int Server::pass(Client& client, request &p, int *count)
 }
 
 
-void Server::Nick(Client& cli, request &p, int *count)
+void Server::Nick(Client& cli, request &p)
 {
     std::string nick = p.cmd;
     bool etat = true;
@@ -48,7 +48,7 @@ void Server::Nick(Client& cli, request &p, int *count)
     if (p.arg.empty())
     {
         send_message(cli.socket_fd, ERR_NONICKNAMEGIVEN());
-        *count = 1;
+        cli.count = 1;
     }
     else
     {
@@ -69,12 +69,12 @@ void Server::Nick(Client& cli, request &p, int *count)
     }
 }
 
-void Server::user(Client& cli, request &p, int *count)
+void Server::user(Client& cli, request &p)
 {
     std::string user = p.cmd;
     if (p.arg.size() != 4)
     {
-        *count = 2;
+        cli.count = 2;
         send_message(cli.socket_fd, ERR_NEEDMOREPARAMS(user));
     }
     else if (p.arg.size() == 4)
@@ -86,7 +86,7 @@ void Server::user(Client& cli, request &p, int *count)
             cli.realName = p.arg[3];
         else
         {
-            *count = 2;
+            cli.count = 2;
             send_message(cli.socket_fd, ":localhost 462 " + cli.nickName + " :You may not reregister\r\n");
         }
     }

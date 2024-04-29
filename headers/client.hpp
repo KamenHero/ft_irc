@@ -27,6 +27,7 @@ struct Client {
 	std::string userName;
 	std::string realName;
 	std::string buffer;
+	int count;
 	std::vector< std::string> _channel;
   	bool authenticated;
 

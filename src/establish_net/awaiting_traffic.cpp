@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/04/29 00:19:56 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/04/29 15:24:18 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	Server::clearClients(std::vector<int> BeRemoved, fd_set &totalfds)
 
 void    Server::handleReadRequest(Client &client)
 {
-    char buf[1024];	
+    char buf[1024];
 	request req;
 
 	std::memset(buf, 0, sizeof(buf));
@@ -79,19 +79,18 @@ void    Server::handleReadRequest(Client &client)
     }
 	if (getAuthentified(client, req) == 3)
 	{
+		
 		if (client.authenticated == false)
 		{
-		send_message(client.socket_fd, RPL_WELCOME(client.nickName));
-		send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
-		send_message(client.socket_fd, RPL_CREATED(client.nickName));
-		send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
+			send_message(client.socket_fd, RPL_WELCOME(client.nickName));
+			send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
+			send_message(client.socket_fd, RPL_CREATED(client.nickName));
+			send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
 			std::cout << client.nickName << " Welcome to irc server!" << std::endl;
 			client.authenticated = true;
+			// client.count = 0;
 		}
-		
-		// commands(req, client);
 	}
-
 }
 
 void	Server::awaitingTraffic()
@@ -124,6 +123,7 @@ void	Server::awaitingTraffic()
 			else if (FD_ISSET(it->first, &readfds))  // function of handling multiple file descriptors or sockets
 			{
 				handleReadRequest(it->second);
+				
 			}
 			// else if (FD_ISSET(it->first, &writefds)) handleResponseRequest(it->second);
 		}
