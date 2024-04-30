@@ -18,33 +18,43 @@
 #include "../../headers/server.hpp"
 #include <cstddef>
 
+int Server::searchForDestination(request& req)
+{
+    int client_dest;
+    std::map<int, Client>::iterator it;
+    
+    for (it = clients.begin(); it != clients.end(); ++it)
+    {
+        if (it->second.nickName == req.arg[0])
+            client_dest = it->first;
+    }
+    return (client_dest);
+}
+
+void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
+{
+    std::string msg;
+    std::string str;
+
+    for (size_t i = 1; i < req.arg.size(); i++) // join the args
+        str += req.arg[i] + " ";
+  
+    msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
+    send(client_dest, msg.c_str(), msg.size(), 0);
+}
 
 int Server::getAuthentified(Client& cli, request& req)
 {   
     if (req.cmd == "PRIVMSG")
     {
         int client_dest;
-        std::string msg;
-        // send message to a client :
-        // 1 serching for nickname
-        std::map<int, Client>::iterator it;
-
-        for (it = clients.begin(); it != clients.end(); ++it)
-        {
-            if (it->second.nickName == req.arg[0])
-            {
-                // 2 get the nickname and take his fd_socket
-                client_dest = it->first;
-            }
-        }
-        // for (size_t i = 1; i < req.arg.size(); i++)
-        // {
-            // std::cout << "arg : " << req.arg[i] << std::endl;
-            // msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0]  + " :" + req.arg[i] + "\r\n";
-            // send(client_dest, msg.c_str(), msg.size(), 0);
-        // }
-        // 3 put the fd_socket on send function
-
+        
+        client_dest = searchForDestination(req);
+        sendMessageToClient(req, cli, client_dest);
+    }
+    else if (req.cmd == "join" || req.cmd == "JOIN")
+    {
+        join(cli, req);
     }
     else if (req.cmd == "PASS" || req.cmd == "pass")
     {

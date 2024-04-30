@@ -47,7 +47,6 @@ std::string Server::join(Client &client, request &p)
             send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : Invalid channel name\r\n");
             continue;
         }
-
         if (channel.length() > 20)
         {
             send_message(client.socket_fd, ":localhost 405 " + client.nickName + " join : Channel name too long\r\n");

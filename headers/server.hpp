@@ -62,4 +62,6 @@ class Server {
 		void joinChannel(std::string &channel, Client &t);
 
 		void commands(request& req, Client& client);
+		int searchForDestination(request& req);
+		void sendMessageToClient(request& req, Client& cli, int client_dest);
 };
