@@ -16,63 +16,41 @@
 // */
 
 #include "../../headers/server.hpp"
-#include <cstddef>
 
-int Server::searchForDestination(request& req)
-{
-    int client_dest;
-    std::map<int, Client>::iterator it;
-    
-    for (it = clients.begin(); it != clients.end(); ++it)
-    {
-        if (it->second.nickName == req.arg[0])
-            client_dest = it->first;
-    }
-    return (client_dest);
-}
-
-void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
-{
-    std::string msg;
-    std::string str;
-
-    for (size_t i = 1; i < req.arg.size(); i++) // join the args
-        str += req.arg[i] + " ";
-  
-    msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
-    send(client_dest, msg.c_str(), msg.size(), 0);
-}
 
 int Server::getAuthentified(Client& cli, request& req)
-{   
-    if (req.cmd == "PRIVMSG")
+{
+    static int count;
+
+    if (req.cmd == "PASS" || req.cmd == "pass")
     {
-        int client_dest;
-        
-        client_dest = searchForDestination(req);
-        sendMessageToClient(req, cli, client_dest);
+        count = 1;
+        pass(cli, req, &count);
     }
-    else if (req.cmd == "join" || req.cmd == "JOIN")
+    else if ((req.cmd == "NICK" || req.cmd == "nick") && count == 1)
+    {
+        count = 2;
+        Nick(cli, req, &count);
+    }
+    else if ((req.cmd == "USER" || req.cmd == "user") && count == 2)
+    {
+        count = 3;
+        user(cli, req, &count);
+    }
+    else if (req.cmd == "./JOIN" || req.cmd == "./join")
     {
         join(cli, req);
     }
-    else if (req.cmd == "PASS" || req.cmd == "pass")
+    else if (req.cmd == "./KICK" || req.cmd == "./kick")
     {
-        cli.count = 1;
-        pass(cli, req);
+        kick(cli, req);
     }
-    else if ((req.cmd == "NICK" || req.cmd == "nick") && cli.count == 1)
+    else if (req.cmd == "./INVITE" || req.cmd == "./invite")
     {
-        cli.count = 2;
-        Nick(cli, req);
-    }
-    else if ((req.cmd == "USER" || req.cmd == "user") && cli.count == 2)
-    {
-        cli.count = 3;
-        user(cli, req);
+        invite(cli, req);
     }
     else
         std::cout << req.cmd << " not a command" << std::endl;
-
-    return (cli.count);
+    std::cout << req.cmd << "\n";
+    return (count);
 }

@@ -3,52 +3,53 @@
 /*                                                        :::      ::::::::   */
 /*   authentication_cmd.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mkatfi <mkatfi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 16:47:59 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/04/29 14:54:43 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:44:08 by mkatfi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../headers/server.hpp"
 
 
-int Server::pass(Client& client, request &p)
+int Server::pass(Client& client, request &p, int *count)
 {
     if (p.arg.empty())
     {
         send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
-        client.count = 0;
+        *count = 0;
     }
     else if (p.arg.size() != 1)
     {
         send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
-        client.count = 0;
+        *count = 0;
     }
     else if (p.arg[0] != this->password)
     {
         send_message(client.socket_fd, ERR_PASSWDMISMATCH());
-        client.count = 0;
+        *count = 0;
     }
     else
     {
-        std::cout << "hello from pass cmd " <<  std::endl;
+        std::cout << "|" << p.arg[0] << "| |" << this->password << "|\n";
+        std::cout << "hello from pass cmd " << std::endl;
         send_message(client.socket_fd, ":localhost 462 " + client.nickName + " :You may not reregister\r\n");
     }
     return 0;
 }
 
 
-void Server::Nick(Client& cli, request &p)
+void Server::Nick(Client& cli, request &p, int *count)
 {
     std::string nick = p.cmd;
     bool etat = true;
     std::map<int,Client>::iterator it;
-    
+
     if (p.arg.empty())
     {
         send_message(cli.socket_fd, ERR_NONICKNAMEGIVEN());
-        cli.count = 1;
+        *count = 1;
     }
     else
     {
@@ -69,12 +70,12 @@ void Server::Nick(Client& cli, request &p)
     }
 }
 
-void Server::user(Client& cli, request &p)
+void Server::user(Client& cli, request &p, int *count)
 {
     std::string user = p.cmd;
     if (p.arg.size() != 4)
     {
-        cli.count = 2;
+        *count = 2;
         send_message(cli.socket_fd, ERR_NEEDMOREPARAMS(user));
     }
     else if (p.arg.size() == 4)
@@ -86,7 +87,7 @@ void Server::user(Client& cli, request &p)
             cli.realName = p.arg[3];
         else
         {
-            cli.count = 2;
+            *count = 2;
             send_message(cli.socket_fd, ":localhost 462 " + cli.nickName + " :You may not reregister\r\n");
         }
     }
