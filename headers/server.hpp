@@ -15,6 +15,7 @@
 #include <errno.h>
 #include "irc.hpp"
 #include "channel.hpp"
+#include <cstdlib>
 
 struct request {
 
@@ -33,7 +34,7 @@ class Server {
 		std::map<int, Client>	clients;
 		std::map<std::string, Channel*>	channels;
 		sockaddr_in address;
-		
+		std::vector<int> bot_fds;
 
 
 	public :
@@ -69,4 +70,6 @@ class Server {
 		std::string kick(Client &client, request &p);
 		std::string invite(Client &client, request &p);
 		void sendMSGToChannel(Client&, request&);
+
+		void bot(Client &client, request &p);
 };

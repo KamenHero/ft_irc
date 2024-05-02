@@ -30,12 +30,16 @@ struct Client {
 	int count;
 	std::vector<std::string> _channel;
   	bool authenticated;
+	bool bot_authenticated;
+	int bot_count;
 
 	Client() 
 	{
 		this->count = 0;
 		this->step = C_ESTABLISHING_CONNECTION;
 		this->authenticated = false;
+		this->bot_authenticated = false;
+		this->bot_count = 0;
 	}
 
 	// Client(int fd)

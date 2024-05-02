@@ -98,6 +98,10 @@ int Server::getAuthentified(Client& cli, request& req)
         cli.count = 3;
         user(cli, req);
     }
+	else if (req.cmd == "KAMEN" || req.cmd == "kamen")
+	{
+		bot(cli, req);
+	}
     else
         std::cout << req.cmd << " not a command" << std::endl;
 
