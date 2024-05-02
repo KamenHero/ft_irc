@@ -31,9 +31,9 @@ class Server {
 		std::string	password;
 		int 		server_fd;
 		std::map<int, Client>	clients;
-		// std::map<std::string, Channel*>	channels;
+		std::map<std::string, Channel*>	channels;
 		sockaddr_in address;
-
+		
 
 
 	public :
@@ -52,17 +52,21 @@ class Server {
 		// int parss_Request(const std::string &command, request &p);
 		// void parse_and_process_command(Client &client, const std::string &command);
 
-		int pass(Client &client, request &p, int *count);
+		int pass(Client &client, request &p);
 		int getAuthentified(Client& cli, request&);
-		void Nick(Client& Client, request &p, int *count);
-		void user(Client& client, request &p, int *count);
+		void Nick(Client& Client, request &p);
+		void user(Client& client, request &p);
 
 		std::string join(Client &client, request &p);
-		void createChannel(std::string& channel,  Client &t);
+		// void createChannel(std::string& channel, int fd, Client &t);
+		void createChannel(std::string &channel, Client &t);
 		void joinChannel(std::string &channel, Client &t);
+
+		void commands(request& req, Client& client);
+		int searchForDestination(request& req);
+		void sendMessageToClient(request& req, Client& cli, int client_dest);
+
 		std::string kick(Client &client, request &p);
 		std::string invite(Client &client, request &p);
-		// void writter();
-
-		void commands(request &req, Client &client);
+		void sendMSGToChannel(Client&, request&);
 };

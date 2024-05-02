@@ -1,8 +1,7 @@
 #include "../../headers/server.hpp"
 #include <iostream>
 #include <algorithm>
-
-std::map<std::string, Channel *> channels;
+#include <vector>
 
 void Server::createChannel(std::string &channel, Client &t)
 {
@@ -12,12 +11,11 @@ void Server::createChannel(std::string &channel, Client &t)
     // clients[fd] = t;// useless
     t._channel.push_back(channel);
 
-    // std::map<std::string, Channel *>::iterator it = channels.begin();
-    // while (it != channels.end())
-    // {
-    //     std::cout << it->first << "<>" << it->second->_name << ">>\n";
-    //     it++;
-    // }
+    for (auto it = channels.begin(); it != channels.end(); ++it)
+    {
+        std::cout << "channel : " << it->first << " client : " << it->second->admin->socket_fd << std::endl;
+    }
+
 }
 
 void Server::joinChannel(std::string &channel, Client &t)
@@ -25,12 +23,15 @@ void Server::joinChannel(std::string &channel, Client &t)
     channels[channel]->_members.push_back(&t);
     t._channel.push_back(channel);
     // channels[channel]->setop(client[fd]);
-}
+    // std::cout<< "<< " << t.socket_fd << " >>\n";
 
+    //  std::vector<Client *>:: iterator it = channels[channel]->_members.begin();
+    //  for(; it != channels[channel]->_members.end(); it++)
+    //     std::cout<< (*it)->socket_fd << std::endl;
+}
 
 std::string Server::join(Client &client, request &p)
 {
-
     if (p.arg.empty() || p.arg.size() < 1)
     {
         send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join :Not enough parameters\r\n");
@@ -51,10 +52,8 @@ std::string Server::join(Client &client, request &p)
             send_message(client.socket_fd, ":localhost 405 " + client.nickName + " join : Channel name too long\r\n");
             continue;
         }
-
         if (channels.count(p.arg[i]))
         {
-            std::cout << "chanee sla d as \n";
             if ((std::find(client._channel.begin(), client._channel.end(), p.arg[i])) != client._channel.end())
             {
                 send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are already in " + channel + "\r\n");
@@ -63,7 +62,7 @@ std::string Server::join(Client &client, request &p)
             }
             else
             {
-                std::cout << "channel kaina walkin machi member !\n";
+                std::cout << "channel : " << p.arg[i] << std::endl;
                 send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + channel + "\r\n");
                 joinChannel(p.arg[i], client);
                 ++i;
@@ -82,15 +81,33 @@ std::string Server::join(Client &client, request &p)
     return "";
 }
 
-// void Server::writter()
-// {
-//     std::map<std::string, Channel *>::iterator it = channels.begin();
-//     while (it != channels.end())
-//     {
-//         std::cout << it->first << "<>" << it->second->_name << ">>\n";
-//         it++;
-//     }
-// }
+void Server::sendMSGToChannel(Client& cli, request& req)
+{
+    std::string msg;
+    std::string str;
+    std::vector<Client*>::iterator it;
+    // std::vector<std::string>::iterator it1; // to check it later
+
+    // it1 = std::find(cli._channel.begin(), cli._channel.begin(), req.arg[0]);
+    // if (it1 != cli._channel.end())
+    // {
+    //     send_message(cli.socket_fd, ERR_NOSUCHNICK());
+    // }
+    for (size_t i = 1; i < req.arg.size(); i++)
+        str += req.arg[i] + " ";
+
+     for(it = channels[req.arg[0]]->_members.begin(); it != channels[req.arg[0]]->_members.end(); it++)
+     {
+        if ((*it)->socket_fd == cli.socket_fd)
+            continue;
+        else
+        {
+            msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
+            send((*it)->socket_fd, msg.c_str(), msg.size(), 0);
+        }
+    }
+}
+
 std::string Server::kick(Client &client, request &p)
 {
     if (p.arg.size() < 2 || p.arg.empty())

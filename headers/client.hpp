@@ -27,14 +27,17 @@ struct Client {
 	std::string userName;
 	std::string realName;
 	std::string buffer;
-	std::vector< std::string> _channel;
+	int count;
+	std::vector<std::string> _channel;
   	bool authenticated;
 
-	Client() {
-
+	Client() 
+	{
+		this->count = 0;
 		this->step = C_ESTABLISHING_CONNECTION;
 		this->authenticated = false;
 	}
+
 	// Client(int fd)
 	// {
 	// 	socket_fd = fd;
