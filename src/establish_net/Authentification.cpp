@@ -24,7 +24,7 @@ int Server::searchForDestination(request& req)
     int client_dest = 0;
     std::map<int, Client>::iterator it;
     std::map<int, Client>::iterator it1;
-    
+
     for (it = clients.begin(); it != clients.end(); ++it)
     {
         if (it->second.nickName == req.arg[0])
@@ -45,14 +45,14 @@ void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
     {
         for (size_t i = 1; i < req.arg.size(); i++)
             str += req.arg[i] + " ";
-    
+
         msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
         send(client_dest, msg.c_str(), msg.size(), 0);
     }
 }
 
 int Server::getAuthentified(Client& cli, request& req)
-{    
+{
     if (req.cmd == "PRIVMSG")
     {
         if (req.arg[0][0] == '#')
@@ -62,7 +62,7 @@ int Server::getAuthentified(Client& cli, request& req)
         else
         {
             int client_dest;
-            
+
             client_dest = searchForDestination(req);
             sendMessageToClient(req, cli, client_dest);
         }
@@ -102,6 +102,14 @@ int Server::getAuthentified(Client& cli, request& req)
 	{
 		bot(cli, req);
 	}
+    else if (req.cmd == "./KICK" || req.cmd == "./kick")
+    {
+        kick(cli, req);
+    }
+    else if (req.cmd == "./INVITE" || req.cmd == "./invite")
+    {
+        invite(cli, req);
+    }
     else
         std::cout << req.cmd << " not a command" << std::endl;
 

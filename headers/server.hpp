@@ -69,6 +69,7 @@ class Server {
 
 		std::string kick(Client &client, request &p);
 		std::string invite(Client &client, request &p);
+		void addmember(std::string &channel, Client *t);
 		void sendMSGToChannel(Client&, request&);
 
 		void bot(Client &client, request &p);
