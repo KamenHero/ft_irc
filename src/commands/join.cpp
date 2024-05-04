@@ -118,8 +118,8 @@ std::string Server::kick(Client &client, request &p)
     }
     else if (std::find(client._channel.begin(), client._channel.end(), p.arg[0]) == client._channel.end())
     {
-        // send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
-        send_message(client.socket_fd, ":localhost 461 " + client.nickName + " kick : You are not a member in this channel\r\n");
+        send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
+        // send_message(client.socket_fd, ":localhost 461 " + client.nickName + " kick : You are not a member in this channel\r\n");
         return ("");
     }
     else if (client.socket_fd != channels[p.arg[0]]->admin->socket_fd)
@@ -177,8 +177,8 @@ std::string Server::invite(Client &client, request &p)
     }
     else if (std::find(client._channel.begin(), client._channel.end(), p.arg[1]) == client._channel.end())
     {
-        // send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
-        send_message(client.socket_fd, ":localhost 461 " + client.nickName + " invite : You are not a member in this channel\r\n");
+        send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
+        // send_message(client.socket_fd, ":localhost 461 " + client.nickName + " invite : You are not a member in this channel\r\n");
         return "";
     }
     else
@@ -224,5 +224,57 @@ std::string Server::invite(Client &client, request &p)
     //     it_2++;
     // }
     //******************************************************************************
+    return ("");
+}
+//  /Topic <channel> [<topic>]
+
+std::string Server::Topic(Client &client, request &p)
+{
+
+    if (p.arg.size() < 2 || p.arg.empty())
+    {
+        send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
+        return ("");
+    }
+    else if (std::find(client._channel.begin(), client._channel.end(), p.arg[0]) == client._channel.end())
+    {
+        send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
+        return ("");
+    }
+    // else if (this->channels[p.arg[0]]->_t == false)
+    // {
+    //     send_message(client.socket_fd, " :localhost 461 " + p.arg[0] + " : You are not allowed to change the topic !\r\n");
+    //     return ("");
+    // }
+    else
+    {
+        bool isMember = 0;
+        std::vector<Client *>::iterator itt; // wax khona member
+        for (itt = channels[p.arg[0]]->_members.begin(); channels[p.arg[0]]->_members.end() != itt; itt++)
+        {
+            if ((*itt)->nickName == client.nickName)
+            {
+                isMember = 1;
+                break;
+            }
+        }
+        if (!isMember)
+        {
+            send_message(client.socket_fd, " :localhost 461 " + p.arg[0] + " makaynch dak khona !\r\n");
+            return ("");
+        }
+        else
+        {
+            std::string topi;
+            for (size_t i = 1; i < p.arg.size(); i++)
+            {
+                topi += p.arg[i];
+                topi += " ";
+            }
+            channels[p.arg[0]]->set_topic(topi);
+            send_message(client.socket_fd, " :localhost 461 (332) "+ client.nickName +" "+ p.arg[0] + " :"  + topi + "\r\n");
+            return ("");
+        }
+    }
     return ("");
 }
