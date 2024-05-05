@@ -34,3 +34,4 @@
 #define BOT_ANSWER() ("Kamen: yes probably\r\n")
 #define BOT_ANSWER1() ("Kamen: Definitly yes\r\n")
 #define BOT_ANSWER2() ("Kamen: That's a BIG no\r\n")
+#define RPL_TOPIC(nick, channel, topic) (":localhost 332 " + nick + " " + channel + " :" + topic + "\r\n")

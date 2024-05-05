@@ -17,7 +17,7 @@ class   Channel {
         int _onlinemembers;
         bool _t;
 
-        std::vector<Client *>_members;
+        std::vector<Client *> _members;
         Client* admin;
 
         Channel();

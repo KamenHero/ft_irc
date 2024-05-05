@@ -79,9 +79,25 @@ int Server::getAuthentified(Client& cli, request& req)
     {
         send_message(cli.socket_fd, "irc.server.com");
     }
+    else if (req.cmd == "MODE")
+    {
+        Mode(cli,req);
+    }
     else if (req.cmd == "join" || req.cmd == "JOIN")
     {
         join(cli, req);
+    }
+    else if (req.cmd == "INVITE")
+    {
+        invite(cli, req);
+    }
+    else if (req.cmd == "KICK")
+    {
+        kick(cli, req);
+    }
+    else if (req.cmd == "TOPIC")
+    {
+        Topic(cli, req);
     }
     else if ((req.cmd == "PASS" || req.cmd == "pass") && cli.count == 0)
     {
@@ -102,14 +118,14 @@ int Server::getAuthentified(Client& cli, request& req)
 	{
 		bot(cli, req);
 	}
-    else if (req.cmd == "KICK" || req.cmd == "kick")
-    {
-        kick(cli, req);
-    }
-    else if (req.cmd == "INVITE" || req.cmd == "invite")
-    {
-        invite(cli, req);
-    }
+    // else if (req.cmd == "KICK" || req.cmd == "kick")
+    // {
+    //     kick(cli, req);
+    // }
+    // else if (req.cmd == "INVITE" || req.cmd == "invite")
+    // {
+    //     invite(cli, req);
+    // }
     else if (req.cmd == "TOPIC" || req.cmd == "topic")
     {
         Topic(cli, req);

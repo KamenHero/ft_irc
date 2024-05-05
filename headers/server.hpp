@@ -72,6 +72,7 @@ class Server {
 		void addmember(std::string &channel, Client *t);
 		std::string Topic(Client &client, request &p);
 		void sendMSGToChannel(Client &, request &);
+		void Mode(Client&, request&);
 
 		void bot(Client &client, request &p);
 };
