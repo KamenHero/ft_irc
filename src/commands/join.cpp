@@ -50,6 +50,7 @@ std::string Server::join(Client &client, request &p)
         std::cout << "creating od channel " << std::endl;
         createChannel(p.arg[0], client);
         send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : the channel is created " + p.arg[0] + "\r\n");
+        join_message(p.arg[0], client.socket_fd);
     }
     else if (channels[p.arg[0]]->admin->inviteOnly == true)
     {
@@ -67,15 +68,28 @@ std::string Server::join(Client &client, request &p)
             send_message(client.socket_fd, ": 333 " + client.nickName  + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
             send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + p.arg[0] + "\r\n");
             joinChannel(p.arg[0], client);
+            join_message(p.arg[0], client.socket_fd);
         }
-        else 
+        else
         {
             std::cout << "hello 1 : " << channels[p.arg[0]]->get_topic() << std::endl;
             send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + p.arg[0] + "\r\n");
             joinChannel(p.arg[0], client);
+            join_message(p.arg[0], client.socket_fd);
         }
     }
     return "";
+}
+std::string Server::join_message(std::string chanel, int fd)
+{
+    std::string response = "";
+    response += clients[fd].nickName + " has joined " + chanel + "\n";
+    response += "Welcome to " + chanel + " " + this->clients[fd].nickName + "\n";
+    response += "Topic for " + chanel + " is " + this->channels[chanel]->get_topic() + "\n";
+    response += "Channel created on " + this->channels[chanel]->admin->nickName + "\n";
+    // response += "There are " + this->channels[chanel]->intToString(this->channels[chanel]->getonlinemembers()) + " users on this channel\n";
+    send_all_member(fd, response);
+    return ("");
 }
 
 void Server::sendMSGToChannel(Client& cli, request& req)
@@ -83,7 +97,7 @@ void Server::sendMSGToChannel(Client& cli, request& req)
     std::string msg;
     std::string str;
     std::vector<Client*>::iterator it;
-    
+
     if (channels[req.arg[0]]->admin->inviteOnly == false)
     {
         for (size_t i = 1; i < req.arg.size(); i++)
@@ -267,10 +281,12 @@ std::string Server::Topic(Client &client, request &p)
                 topic += p.arg[i];
                 topic += " ";
             }
-            topic.erase(0,1);
+            // topic.erase(0, 1);
             channels[p.arg[0]]->set_topic(topic);
+
             send_message(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name , topic));
-            send_message(client.socket_fd, ": 333 " + client.nickName  + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
+            send_all_member(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, topic));
+            send_message(client.socket_fd, ": 333 " + client.nickName + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
             return ("");
         }
     }

@@ -62,6 +62,7 @@ class Server {
 		// void createChannel(std::string& channel, int fd, Client &t);
 		void createChannel(std::string &channel, Client &t);
 		void joinChannel(std::string &channel, Client &t);
+		std::string join_message(std::string channel, int fd);
 
 		void commands(request& req, Client& client);
 		int searchForDestination(request& req);
@@ -73,6 +74,7 @@ class Server {
 		std::string Topic(Client &client, request &p);
 		void sendMSGToChannel(Client &, request &);
 		void Mode(Client&, request&);
+		void send_all_member(int sockfd, const std::string &message);
 
 		void bot(Client &client, request &p);
 };
