@@ -47,10 +47,11 @@ std::string Server::join(Client &client, request &p)
     }
     else if (it == channels.end())
     {
-        std::cout << "creating od channel " << std::endl;
+        std::cout << "creating channel " << std::endl;
         createChannel(p.arg[0], client);
+        send_message(client.socket_fd, RPL_JOINMSG(client.hostName, p.arg[0]));
         send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : the channel is created " + p.arg[0] + "\r\n");
-        join_message(p.arg[0], client.socket_fd);
+        // join_message(p.arg[0], client.socket_fd);
     }
     else if (channels[p.arg[0]]->admin->inviteOnly == true)
     {
@@ -60,22 +61,18 @@ std::string Server::join(Client &client, request &p)
     }
     else
     {
-        if (!channels[p.arg[0]]->_name.empty())
+        if (!channels[p.arg[0]]->_topic.empty())
         {
-            std::cout << "hello : " << channels[p.arg[0]]->get_topic() << std::endl;
-
+            joinChannel(p.arg[0], client);
             send_message(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name , channels[p.arg[0]]->get_topic()));
             send_message(client.socket_fd, ": 333 " + client.nickName  + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
-            send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + p.arg[0] + "\r\n");
-            joinChannel(p.arg[0], client);
-            join_message(p.arg[0], client.socket_fd);
         }
         else
         {
             std::cout << "hello 1 : " << channels[p.arg[0]]->get_topic() << std::endl;
             send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + p.arg[0] + "\r\n");
             joinChannel(p.arg[0], client);
-            join_message(p.arg[0], client.socket_fd);
+            // join_message(p.arg[0], client.socket_fd);
         }
     }
     return "";
@@ -251,11 +248,10 @@ std::string Server::Topic(Client &client, request &p)
         send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
         return ("");
     }
-    // else if (this->channels[p.arg[0]]->_t == false)
-    // {
-    //     send_message(client.socket_fd, " :localhost 461 " + p.arg[0] + " : You are not allowed to change the topic !\r\n");
-    //     return ("");
-    // }
+    else if (this->channels[p.arg[0]]->admin->nickName != client.nickName)
+    {
+        send_message(client.socket_fd, ERR_CHANOPRIVSNEEDED( p.arg[0]));
+    }
     else
     {
         bool isMember = 0;
@@ -281,12 +277,11 @@ std::string Server::Topic(Client &client, request &p)
                 topic += p.arg[i];
                 topic += " ";
             }
-            // topic.erase(0, 1);
+            topic.erase(0, 1);
             channels[p.arg[0]]->set_topic(topic);
-
             send_message(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name , topic));
-            send_all_member(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, topic));
             send_message(client.socket_fd, ": 333 " + client.nickName + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
+            send_all_member(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, topic));
             return ("");
         }
     }

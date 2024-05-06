@@ -6,7 +6,7 @@ Channel::Channel(std::string &channelName, Client *cl)
 {
 	_name = channelName;
 	_members.push_back(cl);
-	_topic = "No topic";
+	_topic = "";
 	_t = false;
 }
 Channel::~Channel(){}
