@@ -66,12 +66,18 @@ std::string Server::join(Client &client, request &p)
             joinChannel(p.arg[0], client);
             send_message(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name , channels[p.arg[0]]->get_topic()));
             send_message(client.socket_fd, ": 333 " + client.nickName  + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
+            //************************
+            send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0]);
+            //************************
         }
         else
         {
             std::cout << "hello 1 : " << channels[p.arg[0]]->get_topic() << std::endl;
             send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + p.arg[0] + "\r\n");
             joinChannel(p.arg[0], client);
+            //************************
+            send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0]);
+            //************************
             // join_message(p.arg[0], client.socket_fd);
         }
     }

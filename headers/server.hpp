@@ -75,6 +75,7 @@ class Server {
 		void sendMSGToChannel(Client &, request &);
 		void Mode(Client&, request&);
 		void send_all_member(int sockfd, const std::string &message);
+		void send_just_member(const std::string &message, std::string chanel);
 
 		void bot(Client &client, request &p);
 };
