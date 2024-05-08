@@ -9,7 +9,9 @@ Channel::Channel(std::string &channelName, Client *cl)
 	_topic = "";
 	_t = false;
 }
+
 Channel::~Channel(){}
+
 void Channel::update_onlinemembers()
 {
 	_onlinemembers = _members.size();

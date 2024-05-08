@@ -5,7 +5,10 @@
 
 void Server::createChannel(std::string &channel, Client &t)
 {
+
     channels[channel] = new Channel(channel, &t);
+    t.changeTopic = true;
+    send_message(t.socket_fd , ":" + t.nickName + " MODE " + channel + " +t\r\n");
     // channels[channel]->update_onlinemembers();
     channels[channel]->admin = &t;
     // clients[fd] = t;// useless
@@ -61,24 +64,63 @@ std::string Server::join(Client &client, request &p)
     }
     else
     {
-        if (!channels[p.arg[0]]->_topic.empty())
+        if (channels[p.arg[0]]->admin->hasPassword == true)
         {
-            joinChannel(p.arg[0], client);
-            send_message(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name , channels[p.arg[0]]->get_topic()));
-            send_message(client.socket_fd, ": 333 " + client.nickName  + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
-            //************************
-            send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0]);
-            //************************
+            if (p.arg.size() != 2)
+            {
+                send_message(client.socket_fd, ERR_BADCHANNELKEY(p.arg[0]));
+                return "";
+            }
+            else if (p.arg[1] != channels[p.arg[0]]->_password)
+            {
+                send_message(client.socket_fd, ERR_INVALIDKEY(p.arg[0]));
+                return "";
+            }
+            else if (p.arg[1] == channels[p.arg[0]]->_password) {
+                
+                channels[p.arg[0]]->admin->hasPassword = false;
+                if (!channels[p.arg[0]]->_topic.empty())
+                {
+                    joinChannel(p.arg[0], client);
+                    send_message(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name , channels[p.arg[0]]->get_topic()));
+                    send_message(client.socket_fd, ": 333 " + client.nickName  + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
+                    //************************
+                    send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0]);
+                    //************************
+                }
+                else
+                {
+                    std::cout << "hello 1 : " << channels[p.arg[0]]->get_topic() << std::endl;
+                    send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + p.arg[0] + "\r\n");
+                    joinChannel(p.arg[0], client);
+                    //************************
+                    send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0]);
+                    //***********************
+                    // join_message(p.arg[0], client.socket_fd);
+                }
+            }
         }
         else
         {
-            std::cout << "hello 1 : " << channels[p.arg[0]]->get_topic() << std::endl;
-            send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + p.arg[0] + "\r\n");
-            joinChannel(p.arg[0], client);
-            //************************
-            send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0]);
-            //************************
-            // join_message(p.arg[0], client.socket_fd);
+            if (!channels[p.arg[0]]->_topic.empty())
+            {
+                joinChannel(p.arg[0], client);
+                send_message(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name , channels[p.arg[0]]->get_topic()));
+                send_message(client.socket_fd, ": 333 " + client.nickName  + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
+                //************************
+                send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0]);
+                //************************
+            }
+            else
+            {
+                std::cout << "hello 1 : " << channels[p.arg[0]]->get_topic() << std::endl;
+                send_message(client.socket_fd, ":localhost 461 " + client.nickName + " join : You are now a memeber in " + p.arg[0] + "\r\n");
+                joinChannel(p.arg[0], client);
+                //************************
+                send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0]);
+                //************************
+                // join_message(p.arg[0], client.socket_fd);
+            }
         }
     }
     return "";
@@ -101,19 +143,22 @@ void Server::sendMSGToChannel(Client& cli, request& req)
     std::string str;
     std::vector<Client*>::iterator it;
 
-    if (channels[req.arg[0]]->admin->inviteOnly == false)
+    if (channels[req.arg[0]]->admin->hasPassword == false)
     {
-        for (size_t i = 1; i < req.arg.size(); i++)
-            str += req.arg[i] + " ";
-
-        for(it = channels[req.arg[0]]->_members.begin(); it != channels[req.arg[0]]->_members.end(); it++)
+        if (channels[req.arg[0]]->admin->inviteOnly == false)
         {
-            if ((*it)->socket_fd == cli.socket_fd)
-                continue;
-            else
+            for (size_t i = 1; i < req.arg.size(); i++)
+                str += req.arg[i] + " ";
+
+            for(it = channels[req.arg[0]]->_members.begin(); it != channels[req.arg[0]]->_members.end(); it++)
             {
-                msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
-                send((*it)->socket_fd, msg.c_str(), msg.size(), 0);
+                if ((*it)->socket_fd == cli.socket_fd)
+                    continue;
+                else
+                {
+                    msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
+                    send((*it)->socket_fd, msg.c_str(), msg.size(), 0);
+                }
             }
         }
     }
@@ -254,9 +299,9 @@ std::string Server::Topic(Client &client, request &p)
         send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
         return ("");
     }
-    else if (this->channels[p.arg[0]]->admin->nickName != client.nickName)
+    else if (this->channels[p.arg[0]]->admin->nickName != client.nickName && channels[p.arg[0]]->admin->changeTopic == true)
     {
-        send_message(client.socket_fd, ERR_CHANOPRIVSNEEDED( p.arg[0]));
+        send_message(client.socket_fd, ERR_CHANOPRIVSNEEDED(p.arg[0]));
     }
     else
     {
@@ -319,16 +364,25 @@ void Server::Mode(Client& cli, request& req)
     else if (std::find(cli._channel.begin(), cli._channel.end(), req.arg[0]) != cli._channel.end() && req.arg[1] == "+t")
     {
         std::cout << "channel find : " << req.arg[0] << std::endl;
-        // channels[req.arg[0]]->admin->inviteOnly = true;
-        // std::cout << "onlyinvite : "<< cli.inviteOnly << std::endl;
+        channels[req.arg[0]]->admin->changeTopic = true;
         send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +t\r\n");
     }
     else if (std::find(cli._channel.begin(), cli._channel.end(), req.arg[0]) != cli._channel.end() && req.arg[1] == "-t")
     {
         std::cout << "channel find : " << req.arg[0] << std::endl;
-        // channels[req.arg[0]]->admin->inviteOnly = true;
-        // std::cout << "onlyinvite : "<< cli.inviteOnly << std::endl;
+        channels[req.arg[0]]->admin->changeTopic = false;
         send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -t\r\n");
+    }
+    else if (std::find(cli._channel.begin(), cli._channel.end(), req.arg[0]) != cli._channel.end() && req.arg[1] == "+k")
+    {
+        channels[req.arg[0]]->admin->hasPassword = true;
+        channels[req.arg[0]]->_password = req.arg[2];
+        send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +k " + req.arg[2] + "\r\n");
+    }
+    else if (std::find(cli._channel.begin(), cli._channel.end(), req.arg[0]) != cli._channel.end() && req.arg[1] == "-k")
+    {
+        channels[req.arg[0]]->admin->hasPassword = false;
+        send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -k\r\n");
     }
     else
         return ;

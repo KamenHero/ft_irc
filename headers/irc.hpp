@@ -37,3 +37,6 @@
 #define RPL_TOPIC(nick, channel, topic) (":localhost 332 " + nick + " " + channel + " :" + topic + "\r\n")
 #define ERR_CHANOPRIVSNEEDED(channel) (":localhost 482 " + channel + " :You're not channel operator\r\n")
 #define RPL_JOINMSG(host, channel) (":" + host + "@12.15.155 JOIN " + channel + "\r\n")
+#define ERR_INVALIDMODEPARAM(channel) (":localhost 696 " + channel + " :Invalid mode parameter\r\n")
+#define ERR_INVALIDKEY(channel) (":localhost 525 " + channel + " :Invalid channel key\r\n")
+#define ERR_BADCHANNELKEY(channel) (":475 " + channel + " :Cannot join channel (+k)\r\n")

@@ -13,7 +13,8 @@ class   Channel {
         std::string _name;
         std::string _pass;
         std::string _topic;
-        bool    hasPassword;
+        std::string _password;
+        
         int _onlinemembers;
         bool _t;
 
