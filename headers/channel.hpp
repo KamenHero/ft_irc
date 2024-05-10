@@ -16,9 +16,13 @@ class   Channel {
         std::string _password;
         
         int _onlinemembers;
-        bool _t;
+	    bool inviteOnly;
+        bool    hasPassword;
+        bool changeTopic;
+        // bool _t;
 
         std::vector<Client *> _members;
+        std::vector<Client *> admins;
         Client* admin;
 
         Channel();

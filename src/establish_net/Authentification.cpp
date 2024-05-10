@@ -118,18 +118,6 @@ int Server::getAuthentified(Client& cli, request& req)
 	{
 		bot(cli, req);
 	}
-    // else if (req.cmd == "KICK" || req.cmd == "kick")
-    // {
-    //     kick(cli, req);
-    // }
-    // else if (req.cmd == "INVITE" || req.cmd == "invite")
-    // {
-    //     invite(cli, req);
-    // }
-    // else if (req.cmd == "TOPIC" || req.cmd == "topic")
-    // {
-    //     Topic(cli, req);
-    // }
     else
         std::cout << req.cmd << " not a command" << std::endl;
 

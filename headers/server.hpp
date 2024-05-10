@@ -78,4 +78,5 @@ class Server {
 		void send_just_member(const std::string &message, std::string chanel);
 
 		void bot(Client &client, request &p);
+		bool isinvited(Client& cli, request& req);
 };

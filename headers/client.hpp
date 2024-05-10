@@ -32,14 +32,10 @@ struct Client {
   	bool authenticated;
 	bool bot_authenticated;
 	int bot_count;
-	bool inviteOnly;
-	bool changeTopic;
-	bool    hasPassword;
+
 
 	Client() 
 	{
-		this->changeTopic = false;
-		this->inviteOnly = false;
 		this->count = 0;
 		this->step = C_ESTABLISHING_CONNECTION;
 		this->authenticated = false;
