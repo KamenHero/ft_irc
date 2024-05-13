@@ -59,9 +59,8 @@ class Server {
 		void user(Client& client, request &p);
 
 		std::string join(Client &client, request &p);
-		// void createChannel(std::string& channel, int fd, Client &t);
-		void createChannel(std::string &channel, Client &t);
-		void joinChannel(std::string &channel, Client &t);
+		void createChannel(std::string &channel, Client &t, request&);
+		void joinChannel(std::string &channel, Client &t, request&);
 		std::string join_message(std::string channel, int fd);
 
 		void commands(request& req, Client& client);
@@ -75,8 +74,10 @@ class Server {
 		void sendMSGToChannel(Client &, request &);
 		void Mode(Client&, request&);
 		void send_all_member(int sockfd, const std::string &message);
-		void send_just_member(const std::string &message, std::string chanel);
+		void send_just_member(const std::string &message, std::string chanel, std::string);
 
 		void bot(Client &client, request &p);
 		bool isinvited(Client& cli, request& req);
+		bool checkLimits(request& req, int *user);
+		int joinClient(Client& client, request& p, std::map<std::string, Channel *>::iterator it);
 };

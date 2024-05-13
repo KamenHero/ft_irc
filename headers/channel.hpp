@@ -19,7 +19,9 @@ class   Channel {
 	    bool inviteOnly;
         bool    hasPassword;
         bool changeTopic;
-        // bool _t;
+        bool isLimit;
+        int maxsize;
+        std::string invited;
 
         std::vector<Client *> _members;
         std::vector<Client *> admins;

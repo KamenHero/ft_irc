@@ -53,7 +53,12 @@ void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
 
 int Server::getAuthentified(Client& cli, request& req)
 {
-    if (req.cmd == "PRIVMSG")
+    std::cout << "cmd : "<< req.cmd <<std::endl; 
+    if (req.cmd == "QUIT" || req.cmd == "quit")
+	{
+		send_message(cli.socket_fd, "QUIT :Leaving the chat\r\n");
+	}
+    else if (req.cmd == "PRIVMSG")
     {
         if (req.arg[0][0] == '#')
         {
@@ -69,7 +74,7 @@ int Server::getAuthentified(Client& cli, request& req)
     }
     else if (req.cmd == "CAP")
     {
-        send_message(cli.socket_fd, "*");
+        send_message(cli.socket_fd, "*\r\n");
     }
     else if (req.cmd == "WHOIS")
     {
@@ -77,7 +82,7 @@ int Server::getAuthentified(Client& cli, request& req)
     }
     else if (req.cmd == "PING")
     {
-        send_message(cli.socket_fd, "irc.server.com");
+        send_message(cli.socket_fd, "PONG :irc.server.com\r\n");
     }
     else if (req.cmd == "MODE")
     {

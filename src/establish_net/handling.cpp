@@ -18,12 +18,17 @@ void Server::send_all_member(int sockfd, const std::string &message)
         }
     }
 }
-void Server::send_just_member(const std::string &message, std::string chanle)
+void Server::send_just_member(const std::string &message, std::string chanle, std::string nick)
 {
+    (void)nick;
     std::vector<Client*> ::iterator it = channels[chanle]->_members.begin();
     for (; it != channels[chanle]->_members.end(); it++)
     {
-        if (send((*it)->socket_fd, message.c_str(), message.size(), 0) == -1)
-            std::cerr << "send() faild" << std::endl;
+        if ((*it)->nickName == nick)
+        {
+            if (send((*it)->socket_fd, message.c_str(), message.size(), 0) == -1)
+                std::cerr << "send() faild" << std::endl;
+            break;
+        }
     }
 }

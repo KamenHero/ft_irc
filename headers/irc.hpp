@@ -6,11 +6,6 @@
 #define C_CLOSE_CONNECTION 4
 
 
-// send_message(client.socket_fd, ":irc.server.com 001 nickname :Welcome to the IRC Server, nickname!\r\n");
-// 		send_message(client.socket_fd, ":irc.server.com 002 nickname :Your host is irc.server.com, running version IRCd-1.0\r\n");
-// 		send_message(client.socket_fd, ":irc.server.com 003 nickname :This server was created on January 1, 2022\r\n");
-// 		send_message(client.socket_fd, ":irc.server.com 004 nickname irc.server.com IRCd-1.0 aoOirw abeIklmnoOpqrstv\r\n");
-
 #define RPL_WELCOME(nickname)   (":irc.server.com 001 " + nickname + " :Welcome to the IRC Server, " + nickname + "!\r\n")
 #define RPL_YOURHOST(client, servername) (":irc.server.com 002 " + client + " :Your host is " + servername + ", running version IRCd-1.0\r\n")
 #define RPL_CREATED(client) (":irc.server.com 003 " + client + " :This server was created on January 1, 2022\r\n")
@@ -40,3 +35,12 @@
 #define ERR_INVALIDMODEPARAM(channel) (":localhost 696 " + channel + " :Invalid mode parameter\r\n")
 #define ERR_INVALIDKEY(channel) (":localhost 525 " + channel + " :Invalid channel key\r\n")
 #define ERR_BADCHANNELKEY(channel) (":475 " + channel + " :Cannot join channel (+k)\r\n")
+#define ERR_USERNOTINCHANNEL(nick,channel) (": 441 " + nick + " " + channel + " :You are not in that channel\r\n")
+#define ERR_CHANNELISFULL(nick, channel) (": 471 " + nick + " " + channel + " :Channel is full\r\n")
+#define RPL_ALREAYREGISTRED(nick, channel) (": 462 " + nick + " " + channel + ":You are already on that channel\r\n")
+#define ERR_INVITEONLYCHAN(nick, channel) (": 473 " + nick + " " + channel + " :Cannot join channel (+i)\r\n")
+#define ERR_KICKYOUSELF(nick) (": 488 " + nick + " :You can not kick yourself\r\n")
+#define ERR_USERONCHANNEL(nick, channel) (": 443 " + nick + " " + channel + " :is already on channel\r\n")
+#define ERR_NOTONCHANNEL(nick, channel) (": 442 " + nick + " " + channel + " :You're not on that channel\r\n")
+#define RPL_INVITING(nick, channel) (":localhost 341 " + nick + " " + channel + " :invite in channel!\r\n")
+#define RPL_TOPICWHOTIME(nick, channel, admin) (": 333 " + nick + " " + channel + " " + admin + "\r\n")

@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/05/09 23:46:52 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/05/13 23:48:40 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void	acceptIncomingConnection(std::map<int, Client> &clients, fd_set &totalfds, 
 	if (newfd == -1)
 		return;
 
-	// if (newfd < 0) throw std::runtime_error("Systemcall `accept` failed.");
+	if (newfd < 0) throw std::runtime_error("Systemcall `accept` failed.");
 
 	std::cout << "\033[1;32mClient : " << newfd << " connected...\033[0m" << std::endl;
 
@@ -109,7 +109,7 @@ void	Server::awaitingTraffic()
 
 		int	res = select(FD_SETSIZE, &readfds, &writefds, NULL, NULL);
 
-		// if (res < 0) throw std::runtime_error("Systemcall `select()` failed.");
+		if (res < 0) throw std::runtime_error("Systemcall `select()` failed.");
 
 		if (!res) continue ;
 

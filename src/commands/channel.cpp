@@ -12,6 +12,9 @@ Channel::Channel(std::string &channelName, Client *cl)
 	inviteOnly = false;
 	hasPassword = false;
 	changeTopic = false;
+	isLimit = false;
+	maxsize = 0;
+	invited = "";
 }
 
 Channel::~Channel(){}
