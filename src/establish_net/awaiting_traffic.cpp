@@ -6,12 +6,13 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/05/14 16:46:24 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/05/15 00:52:11 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../headers/server.hpp"
 #include <cstddef>
+#include <cstdlib>
 #include <sstream>
 #include <string>
 
@@ -59,7 +60,7 @@ void    Server::handleReadRequest(Client &client)
 	request req;
 
 	std::memset(buf, 0, sizeof(buf));
-    int bytes_received = recv(client.socket_fd, buf, sizeof(buf), 0);
+    int bytes_received = recv(client.socket_fd, buf, sizeof(buf) - 1, 0);
 
 	if (bytes_received == -1)
 	{
@@ -73,29 +74,32 @@ void    Server::handleReadRequest(Client &client)
 	}
     if (bytes_received > 0)
 	{
+		std::string str;
+		static std::string str1;
         buf[bytes_received] = '\0';
-		std::stringstream iss(buf);
-		std::string line;
-		iss >> req.cmd;
-		
-		while (iss >> line)
+		str1 += buf;
+		size_t pos = str1.find_first_of("\r\n");
+		if (pos != std::string::npos)
 		{
-			req.arg.push_back(line);
+			std::cout << "hiiii" << std::endl;
+			str = str1.substr(0, pos);
+			str1.clear();
 		}
+		std::cout << str << std::endl;
     }
-	if (getAuthentified(client, req) == 3)
-	{
+	// if (getAuthentified(client, req) == 3)
+	// {
 		
-		if (client.authenticated == false)
-		{
-			send_message(client.socket_fd, RPL_WELCOME(client.nickName));
-			send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
-			send_message(client.socket_fd, RPL_CREATED(client.nickName));
-			send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
-			std::cout << client.nickName << " Welcome to irc server!" << std::endl;
-			client.authenticated = true;
-		}
-	}
+	// 	if (client.authenticated == false)
+	// 	{
+	// 		send_message(client.socket_fd, RPL_WELCOME(client.nickName));
+	// 		send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
+	// 		send_message(client.socket_fd, RPL_CREATED(client.nickName));
+	// 		send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
+	// 		std::cout << client.nickName << " Welcome to irc server!" << std::endl;
+	// 		client.authenticated = true;
+	// 	}
+	// }
 }
 
 void	Server::awaitingTraffic()
