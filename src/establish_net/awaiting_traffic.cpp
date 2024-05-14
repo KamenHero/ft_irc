@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/05/13 23:48:40 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/05/14 16:46:24 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,12 @@ void    Server::handleReadRequest(Client &client)
 	{
 		std::cerr << "error receving data from client" << std::endl;
 	}
+	if (bytes_received == 0)
+	{
+		std::cout << "\e[0;31mClient " << client.socket_fd << " disconnected " << std::endl;
+		client.step = C_CLOSE_CONNECTION;
+		return;
+	}
     if (bytes_received > 0)
 	{
         buf[bytes_received] = '\0';
@@ -88,7 +94,6 @@ void    Server::handleReadRequest(Client &client)
 			send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
 			std::cout << client.nickName << " Welcome to irc server!" << std::endl;
 			client.authenticated = true;
-			// client.count = 0;
 		}
 	}
 }

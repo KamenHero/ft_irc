@@ -18,20 +18,23 @@
 #include "../../headers/server.hpp"
 #include <cstddef>
 #include <linux/limits.h>
+#include <sstream>
+#include <string>
 
 int Server::searchForDestination(request& req)
 {
     int client_dest = 0;
     std::map<int, Client>::iterator it;
-    std::map<int, Client>::iterator it1;
 
     for (it = clients.begin(); it != clients.end(); ++it)
     {
         if (it->second.nickName == req.arg[0])
+        {
             client_dest = it->first;
-        return (client_dest);
+            break;
+        }
     }
-    return (0);
+    return (client_dest);
 }
 
 void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
@@ -46,19 +49,22 @@ void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
         for (size_t i = 1; i < req.arg.size(); i++)
             str += req.arg[i] + " ";
 
+        str.erase(0,1);
         msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
         send(client_dest, msg.c_str(), msg.size(), 0);
     }
 }
 
 int Server::getAuthentified(Client& cli, request& req)
-{
-    std::cout << "cmd : "<< req.cmd <<std::endl; 
+{ 
     if (req.cmd == "QUIT" || req.cmd == "quit")
 	{
-		send_message(cli.socket_fd, "QUIT :Leaving the chat\r\n");
+        std::stringstream ss;
+        ss >> cli.socket_fd;
+		send_message(cli.socket_fd, QUIT(ss.str(), cli.nickName));
+        return 0;
 	}
-    else if (req.cmd == "PRIVMSG")
+    if (req.cmd == "PRIVMSG")
     {
         if (req.arg[0][0] == '#')
         {
@@ -82,7 +88,7 @@ int Server::getAuthentified(Client& cli, request& req)
     }
     else if (req.cmd == "PING")
     {
-        send_message(cli.socket_fd, "PONG :irc.server.com\r\n");
+        send_message(cli.socket_fd, "PONG irc.server.com :abcde123456\r\n");
     }
     else if (req.cmd == "MODE")
     {

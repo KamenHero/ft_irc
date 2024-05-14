@@ -23,12 +23,24 @@ void Server::createChannel(std::string &channel, Client &t, request& p)
 void Server::joinChannel(std::string &channel, Client &t, request& p)
 {
     (void)p;
+    std::vector<Client*>::iterator it;
+
     channels[channel]->_members.push_back(&t);
     t._channel.push_back(channel);
+
+    channels[channel]->member_str = ":localhost 353 " + t.nickName + " = " + channel + " :@" + channels[channel]->admin->nickName + " ";
+    for (it = channels[channel]->_members.begin(); it != channels[channel]->_members.end(); ++it)
+    {
+        if ((*it)->nickName == channels[channel]->admin->nickName)
+            continue;
+        else
+            channels[channel]->member_str += (*it)->nickName + " ";
+    }
+    channels[channel]->member_str += "\r\n";
     send_message(t.socket_fd,  ":" + t.nickName + "!" + t.serverName + "@localhost JOIN :"+ channel + "\r\n");
     send_message(t.socket_fd, RPL_TOPIC(t.nickName, p.arg[0], channels[p.arg[0]]->get_topic()));
     send_message(t.socket_fd, ": 333 " + t.nickName  + " " + channels[p.arg[0]]->_name + " " + channels[p.arg[0]]->admin->nickName + "\r\n");
-    send_message(t.socket_fd , ":localhost 353 " + t.nickName + " = " + channel + " :@" + channels[channel]->admin->nickName + "\r\n");
+    send_message(t.socket_fd , channels[channel]->member_str);
     send_message(t.socket_fd, ":localhost 366 " + t.nickName + " " + channel + " :End of /NAMES list.\r\n");
 }
 
@@ -136,7 +148,7 @@ int Server::joinClient(Client& client, request& p, std::map<std::string,Channel*
             }
         }
     }
-    else 
+    else
     {
         if (!channels[p.arg[0]]->_topic.empty())
         {
@@ -172,6 +184,7 @@ void Server::sendMSGToChannel(Client& cli, request& req)
         for (size_t i = 1; i < req.arg.size(); i++)
             str += req.arg[i] + " ";
 
+        str.erase(0,1);
         msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
         for(it = channels[req.arg[0]]->_members.begin(); it != channels[req.arg[0]]->_members.end(); ++it)
         {
@@ -426,6 +439,8 @@ void Server::Mode(Client& cli, request& req)
                     if ((*it)->nickName == req.arg[2])
                     {
                         std::cout << "+O : " << (*it)->nickName << std::endl;
+                        (*it)->nickName = "@" + (*it)->nickName;
+                        channels[req.arg[0]]->member_str = ":localhost 353 " + cli.nickName + " = " + req.arg[0] + " :" + (*it)->nickName + "\r\n";
                         channels[req.arg[0]]->admins.push_back(*it);
                         send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +o " + req.arg[2] + "\r\n");
                         return;
@@ -440,6 +455,7 @@ void Server::Mode(Client& cli, request& req)
                     if ((*it)->nickName == req.arg[2])
                     {
                         std::cout << "-O : " << (*it)->nickName << std::endl;
+
                         send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -o " + req.arg[2] + "\r\n");
                         channels[req.arg[0]]->admins.erase(it);
                         return;

@@ -6,9 +6,7 @@ Channel::Channel(std::string &channelName, Client *cl)
 {
 	_name = channelName;
 	_members.push_back(cl);
-	// admins.push_back(cl);
 	_topic = "";
-	// _t = false;
 	inviteOnly = false;
 	hasPassword = false;
 	changeTopic = false;

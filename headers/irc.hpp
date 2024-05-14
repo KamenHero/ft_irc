@@ -11,7 +11,7 @@
 #define RPL_CREATED(client) (":irc.server.com 003 " + client + " :This server was created on January 1, 2022\r\n")
 #define RPL_MYINFO(nickname, servername)    (":irc.server.com 004 " + nickname + servername + " IRCd-1.0 <available user modes> <available channel modes> [<channel modes with a parameter>]\r\n")
 
-#define ERR_PASSWDMISMATCH()    (" ERROR 464 :Password incorrect\r\n")
+#define ERR_PASSWDMISMATCH()  (" ERROR 464 :Password incorrect\r\n")
 #define ERR_NEEDMOREPARAMS(cmd) (cmd + " ERROR 461 :Not enough parameters\r\n")
 #define ERR_NICKNAMEINUSE(nick) (nick + " Error 433 :Nickname is already in use\r\n")
 #define ERR_NONICKNAMEGIVEN() (" ERROR 431 :No nickname given\r\n")
@@ -44,3 +44,5 @@
 #define ERR_NOTONCHANNEL(nick, channel) (": 442 " + nick + " " + channel + " :You're not on that channel\r\n")
 #define RPL_INVITING(nick, channel) (":localhost 341 " + nick + " " + channel + " :invite in channel!\r\n")
 #define RPL_TOPICWHOTIME(nick, channel, admin) (": 333 " + nick + " " + channel + " " + admin + "\r\n")
+#define QUIT(fd, nick) (":" + fd + "!~" + nick + "@localhost QUIT leaving the channel\r\n")
+

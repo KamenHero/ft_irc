@@ -22,6 +22,7 @@ class   Channel {
         bool isLimit;
         int maxsize;
         std::string invited;
+         std::string member_str;
 
         std::vector<Client *> _members;
         std::vector<Client *> admins;

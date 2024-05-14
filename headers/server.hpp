@@ -35,10 +35,13 @@ class Server {
 		std::map<std::string, Channel*>	channels;
 		sockaddr_in address;
 		std::vector<int> bot_fds;
+		// static bool Signal;
 
 
 	public :
 
+		
+		static void	handler(int signal);
 		void	importConfig(std::string importedPort, std::string importedPassword);
 		void	hostServer();
 		void	awaitingTraffic();
@@ -74,7 +77,7 @@ class Server {
 		void sendMSGToChannel(Client &, request &);
 		void Mode(Client&, request&);
 		void send_all_member(int sockfd, const std::string &message);
-		void send_just_member(const std::string &message, std::string chanel, std::string);
+		void send_just_member(const std::string &message, std::string, std::string);
 
 		void bot(Client &client, request &p);
 		bool isinvited(Client& cli, request& req);
