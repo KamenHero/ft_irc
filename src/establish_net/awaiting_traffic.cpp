@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/05/15 17:38:39 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/05/15 21:56:01 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ void    Server::handleReadRequest(Client &client)
 		static std::string str1;
         buf[bytes_received] = '\0';
 		str1 += buf;
+		std::cout << "str : " << str1 << std::endl;
 		size_t pos = str1.find_first_of("\r\n");
 		if (pos != std::string::npos)
 		{

@@ -384,102 +384,109 @@ std::string Server::Topic(Client &client, request &p)
 
 void Server::Mode(Client& cli, request& req)
 {
-    std::vector<std::string>::iterator it = std::find(cli._channel.begin(), cli._channel.end(), req.arg[0]);
-    if (!req.arg[1].empty())
-    {
 
-        // std::cout << "cmd : "<< req.cmd << std::endl;
-        std::cout << " arg : "<< req.arg[0] << std::endl;
-        return ;
-    }
+    std::cout << "1 " << req.cmd << std::endl;
+    std::cout << "2 " << req.arg[0] << std::endl;
+    std::vector<std::string>::iterator it = std::find(cli._channel.begin(), cli._channel.end(), req.arg[0]);
+    // if (req.cmd == "mode" && req.arg[0] == "#rr")
+    // {
+    //     return;
+    // }
+    if (req.arg.size() < 2)
+        return;
     if (req.arg[0] == cli.nickName && req.arg[1] == "+i")
     {
+        std::cout << "hello " << req.arg[1] << std::endl;
         send_message(cli.socket_fd , "MODE " + req.arg[0] + " +i\r\n");
         return;
     }
-    for (size_t i = 0; i < channels.size(); i++)
+    else
     {
-        if (channels[req.arg[0]])
+        std::cout << "hello : " << std::endl;
+        for (size_t i = 0; i < channels.size(); i++)
         {
-            // std::cout << " arg 1 : "<< req.arg[1] << std::endl;
-            // std::cout << "helllllloooo " << std::endl;
-            if (it != cli._channel.end() && req.arg[1] == "+i")
+            if (channels[req.arg[0]])
             {
-                std::cout << "mode i actived " << std::endl;
-                channels[req.arg[0]]->inviteOnly = true;
-                send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +i\r\n");
-            }
-            else if (it != cli._channel.end() && req.arg[1] == "-i")
-            {
-                std::cout << "mode i desactived " << std::endl;
-                channels[req.arg[0]]->inviteOnly = false;
-                send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -i\r\n");
-            }
-            else if (it != cli._channel.end() && req.arg[1] == "+t")
-            {
-                channels[req.arg[0]]->changeTopic = true;
-                send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +t\r\n");
-            }
-            else if (it != cli._channel.end() && req.arg[1] == "-t")
-            {
-                channels[req.arg[0]]->changeTopic = false;
-                send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -t\r\n");
-            }
-            else if (it != cli._channel.end() && req.arg[1] == "+k")
-            {
-                channels[req.arg[0]]->hasPassword = true;
-                channels[req.arg[0]]->_password = req.arg[2];
-                send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +k " + req.arg[2] + "\r\n");
-            }
-            else if (it != cli._channel.end() && req.arg[1] == "-k")
-            {
-                channels[req.arg[0]]->hasPassword = false;
-                send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -k\r\n");
-            }
-            else if (it != cli._channel.end() && req.arg[1] == "+o")
-            {
-                std::vector<Client*> ::iterator it;
-                for (it = channels[req.arg[0]]->_members.begin(); it != channels[req.arg[0]]->_members.end(); ++it)
+                // std::cout << " arg 1 : "<< req.arg[1] << std::endl;
+                // std::cout << "helllllloooo " << std::endl;
+                if (it != cli._channel.end() && req.arg[1] == "+i")
                 {
-                    if ((*it)->nickName == req.arg[2])
+                    std::cout << "mode i actived " << std::endl;
+                    channels[req.arg[0]]->inviteOnly = true;
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +i\r\n");
+                }
+                else if (it != cli._channel.end() && req.arg[1] == "-i")
+                {
+                    std::cout << "mode i desactived " << std::endl;
+                    channels[req.arg[0]]->inviteOnly = false;
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -i\r\n");
+                }
+                else if (it != cli._channel.end() && req.arg[1] == "+t")
+                {
+                    channels[req.arg[0]]->changeTopic = true;
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +t\r\n");
+                }
+                else if (it != cli._channel.end() && req.arg[1] == "-t")
+                {
+                    channels[req.arg[0]]->changeTopic = false;
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -t\r\n");
+                }
+                else if (it != cli._channel.end() && req.arg[1] == "+k")
+                {
+                    channels[req.arg[0]]->hasPassword = true;
+                    channels[req.arg[0]]->_password = req.arg[2];
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +k " + req.arg[2] + "\r\n");
+                }
+                else if (it != cli._channel.end() && req.arg[1] == "-k")
+                {
+                    channels[req.arg[0]]->hasPassword = false;
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -k\r\n");
+                }
+                else if (it != cli._channel.end() && req.arg[1] == "+o")
+                {
+                    std::vector<Client*> ::iterator it;
+                    for (it = channels[req.arg[0]]->_members.begin(); it != channels[req.arg[0]]->_members.end(); ++it)
                     {
-                        std::cout << "+O : " << (*it)->nickName << std::endl;
-                        (*it)->nickName = "@" + (*it)->nickName;
-                        channels[req.arg[0]]->admins.push_back(*it);
-                        send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +o " + req.arg[2] + "\r\n");
-                        channels[req.arg[0]]->member_str = ":localhost 353 " + cli.nickName + " = " + req.arg[0] + " :" + (*it)->nickName + "\r\n";
-                        return;
+                        if ((*it)->nickName == req.arg[2])
+                        {
+                            std::cout << "+O : " << (*it)->nickName << std::endl;
+                            (*it)->nickName = "@" + (*it)->nickName;
+                            channels[req.arg[0]]->admins.push_back(*it);
+                            send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +o " + req.arg[2] + "\r\n");
+                            channels[req.arg[0]]->member_str = ":localhost 353 " + cli.nickName + " = " + req.arg[0] + " :" + (*it)->nickName + "\r\n";
+                            return;
+                        }
                     }
                 }
-            }
-            else if (it != cli._channel.end() && req.arg[1] == "-o")
-            {
-                std::vector<Client*> ::iterator it;
-                for (it = channels[req.arg[0]]->admins.begin(); it != channels[req.arg[0]]->admins.end(); ++it)
+                else if (it != cli._channel.end() && req.arg[1] == "-o")
                 {
-                    if ("@" + req.arg[2] == (*it)->nickName)
+                    std::vector<Client*> ::iterator it;
+                    for (it = channels[req.arg[0]]->admins.begin(); it != channels[req.arg[0]]->admins.end(); ++it)
                     {
-                        (*it)->nickName.erase(0,1);
-                        std::cout << "-O : " << (*it)->nickName << std::endl;
-                        send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -o " + req.arg[2] + "\r\n");
-                        channels[req.arg[0]]->admins.erase(it);
-                        return;
+                        if ("@" + req.arg[2] == (*it)->nickName)
+                        {
+                            (*it)->nickName.erase(0,1);
+                            std::cout << "-O : " << (*it)->nickName << std::endl;
+                            send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -o " + req.arg[2] + "\r\n");
+                            channels[req.arg[0]]->admins.erase(it);
+                            return;
+                        }
                     }
                 }
+                else if (it != cli._channel.end() && req.arg[1] == "+l")
+                {
+                    channels[req.arg[0]]->maxsize = std::atoi(req.arg[2].c_str());
+                    channels[req.arg[0]]->isLimit = true;
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +l " + req.arg[2] + "\r\n");
+                }
+                else if (it != cli._channel.end() && req.arg[1] == "-l")
+                {
+                    channels[req.arg[0]]->isLimit = false;
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -l " + req.arg[2] + "\r\n");
+                }
+                else
+                    return ;
             }
-            else if (it != cli._channel.end() && req.arg[1] == "+l")
-            {
-                channels[req.arg[0]]->maxsize = std::atoi(req.arg[2].c_str());
-                channels[req.arg[0]]->isLimit = true;
-                send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +l " + req.arg[2] + "\r\n");
-            }
-            else if (it != cli._channel.end() && req.arg[1] == "-l")
-            {
-                channels[req.arg[0]]->isLimit = false;
-                send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -l " + req.arg[2] + "\r\n");
-            }
-            else
-                return ;
         }
     }
 }
