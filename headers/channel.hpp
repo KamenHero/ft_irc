@@ -15,7 +15,7 @@ class   Channel {
         std::string _topic;
         std::string _password;
         
-        int _onlinemembers;
+        // int _onlinemembers;
 	    bool inviteOnly;
         bool    hasPassword;
         bool changeTopic;

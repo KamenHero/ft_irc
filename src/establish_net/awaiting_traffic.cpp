@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/05/15 00:52:11 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/05/15 17:38:39 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,7 @@ void    Server::handleReadRequest(Client &client)
 	std::memset(buf, 0, sizeof(buf));
     int bytes_received = recv(client.socket_fd, buf, sizeof(buf) - 1, 0);
 
-	if (bytes_received == -1)
-	{
-		std::cerr << "error receving data from client" << std::endl;
-	}
-	if (bytes_received == 0)
+	if (bytes_received <= 0)
 	{
 		std::cout << "\e[0;31mClient " << client.socket_fd << " disconnected " << std::endl;
 		client.step = C_CLOSE_CONNECTION;
@@ -81,25 +77,31 @@ void    Server::handleReadRequest(Client &client)
 		size_t pos = str1.find_first_of("\r\n");
 		if (pos != std::string::npos)
 		{
-			std::cout << "hiiii" << std::endl;
 			str = str1.substr(0, pos);
 			str1.clear();
 		}
-		std::cout << str << std::endl;
-    }
-	// if (getAuthentified(client, req) == 3)
-	// {
+		std::stringstream iss(str);
+		std::string line;
+		iss >> req.cmd;
 		
-	// 	if (client.authenticated == false)
-	// 	{
-	// 		send_message(client.socket_fd, RPL_WELCOME(client.nickName));
-	// 		send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
-	// 		send_message(client.socket_fd, RPL_CREATED(client.nickName));
-	// 		send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
-	// 		std::cout << client.nickName << " Welcome to irc server!" << std::endl;
-	// 		client.authenticated = true;
-	// 	}
-	// }
+		// std::cout << "str : " << req.cmd << std::endl;
+		while (iss >> line)
+		{
+			req.arg.push_back(line);
+		}
+    }
+	if (getAuthentified(client, req) == 3)
+	{
+		if (client.authenticated == false)
+		{
+			send_message(client.socket_fd, RPL_WELCOME(client.nickName));
+			send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
+			send_message(client.socket_fd, RPL_CREATED(client.nickName));
+			send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
+			std::cout << client.nickName << " Welcome to irc server!" << std::endl;
+			client.authenticated = true;
+		}
+	}
 }
 
 void	Server::awaitingTraffic()
@@ -131,8 +133,9 @@ void	Server::awaitingTraffic()
 			if(it->second.step == C_CLOSE_CONNECTION) clientsReadyToBeRemoved.push_back(it->first);
 			else if (FD_ISSET(it->first, &readfds))  // function of handling multiple file descriptors or sockets
 			{
+		        // std::cout << "0000000000000000000000" << std::endl;
 				handleReadRequest(it->second);
-				
+		        // std::cout << "1111111111111111111111" << std::endl;
 			}
 			// else if (FD_ISSET(it->first, &writefds)) handleResponseRequest(it->second);
 		}

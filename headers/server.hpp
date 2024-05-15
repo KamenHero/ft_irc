@@ -21,7 +21,12 @@ struct request {
 
 	std::string cmd;
 	std::vector<std::string> arg;
-	int statu;
+	// int statu;
+
+	request () {
+
+		cmd = "";
+	}
 };
 
 class Server {
@@ -49,6 +54,7 @@ class Server {
 		void	clearClients(std::vector<int> clientsToBeRemoved, fd_set &totalfds);
 		void	handleResponseRequest(Client &client);
 		void	handleReadRequest(Client &client);
+		~Server();
 
 	/*-------------------------------CPMMAND-----------------------------------------------------*/
 		void send_message(int sockfd, const std::string &message);
