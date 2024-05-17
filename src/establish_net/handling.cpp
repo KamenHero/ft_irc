@@ -7,12 +7,6 @@ void Server::send_message(int sockfd, const std::string& message)
         std::cerr << "send() faild" << std::endl;
 }
 
-// void Server::handler(int sig)
-// {
-// 	(void)sig;
-//     Signal = true;
-// }
-
 void Server::send_all_member(int sockfd, const std::string &message)
 {
     std::map<int, Client>::iterator it = clients.begin();
@@ -32,11 +26,8 @@ void Server::send_just_member(const std::string &message, std::string channel, s
     std::vector<Client*> ::iterator it = channels[channel]->_members.begin();
     for (; it != channels[channel]->_members.end(); it++)
     {
-        if ((*it)->nickName == nick)
-        {
-            if (send((*it)->socket_fd, message.c_str(), message.size(), 0) == -1)
-                std::cerr << "send() faild" << std::endl;
-            break;
-        }
+        if (send((*it)->socket_fd, message.c_str(), message.size(), 0) == -1)
+            std::cerr << "send() faild" << std::endl;
+        break;
     }
 }

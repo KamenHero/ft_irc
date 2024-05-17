@@ -71,6 +71,7 @@ class Server {
 		void createChannel(std::string &channel, Client &t, request&);
 		void joinChannel(std::string &channel, Client &t, request&);
 		std::string join_message(std::string channel, int fd);
+		bool is_admin(request& req, Client&);
 
 		void commands(request& req, Client& client);
 		int searchForDestination(request& req);

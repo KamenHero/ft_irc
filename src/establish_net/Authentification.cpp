@@ -21,20 +21,14 @@
 #include <sstream>
 #include <string>
 
-int Server::searchForDestination(request& req)
-{
-    int client_dest = 0;
+int Server::searchForDestination(request& req) {
     std::map<int, Client>::iterator it;
-
-    for (it = clients.begin(); it != clients.end(); ++it)
-    {
-        if (it->second.nickName == req.arg[0])
-        {
-            client_dest = it->first;
-            break;
+    for (it = clients.begin(); it != clients.end(); ++it) {
+        if (it->second.nickName == req.arg[0]) {
+            return it->second.socket_fd;
         }
     }
-    return (client_dest);
+    return -1;
 }
 
 void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
@@ -43,27 +37,27 @@ void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
     std::string str;
 
     if (searchForDestination(req) == 0)
-        send_message(cli.socket_fd, ERR_NOSUCHNICK(req.arg[0]));
-    else
     {
-        for (size_t i = 1; i < req.arg.size(); i++)
-            str += req.arg[i] + " ";
-
-        str.erase(0,1);
-        msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
-        send(client_dest, msg.c_str(), msg.size(), 0);
+        send_message(cli.socket_fd, ERR_NOSUCHNICK(req.arg[0]));
+        return;
     }
+        for (size_t i = 1; i < req.arg.size(); i++) {
+            str += req.arg[i];
+            if (i != req.arg.size() - 1) {
+                str += " ";
+            }
+        }
+        
+        str.erase(0,1);
+        msg = ":" + cli.nickName + "!~" + cli.userName + "@localhost PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
+        // msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
+        send(client_dest, msg.c_str(), msg.size(), 0);
 }
+
+
 
 int Server::getAuthentified(Client& cli, request& req)
 { 
-    if (req.cmd == "QUIT" || req.cmd == "quit")
-	{
-        std::stringstream ss;
-        ss >> cli.socket_fd;
-		send_message(cli.socket_fd, QUIT(ss.str(), cli.nickName));
-        return 0;
-	}
     if (req.cmd == "PRIVMSG")
     {
         if (req.arg[0][0] == '#')

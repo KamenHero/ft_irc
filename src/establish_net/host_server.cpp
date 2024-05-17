@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 16:34:44 by oryadi            #+#    #+#             */
-/*   Updated: 2024/05/14 17:48:40 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/05/16 22:57:40 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,6 @@ void	Server::hostServer()
 	
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		throw std::runtime_error("Cannot create a socket.");
-
-	// if (fcntl(server_fd, F_SETFL, O_NONBLOCK) < 0)
-	// 	throw std::runtime_error("Cannot make socket NON_BLOCK.");
 
 	if (bind(server_fd,(struct sockaddr *)&address,sizeof(address)) < 0)
 		throw std::runtime_error("Cannot bind the socket.");

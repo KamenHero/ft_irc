@@ -138,12 +138,12 @@ int Server::joinClient(Client& client, request& p, std::map<std::string,Channel*
             if (!channels[p.arg[0]]->_topic.empty())
             {
                 joinChannel(p.arg[0], client, p);
-                send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0], client.nickName);
+                send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0], client.nickName);
             }
             else
             {
                 joinChannel(p.arg[0], client, p);
-                send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0], client.nickName);
+                send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0], client.nickName);
             }
         }
     }
@@ -152,12 +152,12 @@ int Server::joinClient(Client& client, request& p, std::map<std::string,Channel*
         if (!channels[p.arg[0]]->_topic.empty())
         {
             joinChannel(p.arg[0], client,p);
-            send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0], client.nickName);
+            send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0], client.nickName);
         }
         else
         {
             joinChannel(p.arg[0], client,p);
-            send_just_member(RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, channels[p.arg[0]]->get_topic()), p.arg[0], client.nickName);
+            send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0], client.nickName);
         }
     }
     return 0;
@@ -264,7 +264,7 @@ std::string Server::invite(Client &client, request &p)
     }
     else if (std::find(client._channel.begin(), client._channel.end(), p.arg[1]) == client._channel.end())
     {
-        send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
+        send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[1]));
         return "";
     }
     std::vector<Client*> ::iterator it;
@@ -300,7 +300,7 @@ std::string Server::invite(Client &client, request &p)
             }
             if (!isExist)
             {
-                send_message(client.socket_fd, ERR_NOTONCHANNEL(client.nickName, p.arg[1]));
+                send_message(client.socket_fd, ERR_NOSUCHNICK(client.nickName));
                 return ("");
             }
             
@@ -382,16 +382,31 @@ std::string Server::Topic(Client &client, request &p)
     return ("");
 }
 
+bool Server::is_admin(request& req, Client& cli)
+{
+    std::vector<Client*>::iterator it;
+    bool etat = false;
+    
+    for (it =  channels[req.arg[0]]->admins.begin(); it !=  channels[req.arg[0]]->admins.end(); ++it)
+    {
+        if ((*it)->nickName == cli.nickName)
+        {
+            etat = true;
+            break;
+        }
+    }
+    if (!etat)
+    {
+        send_message(cli.socket_fd, ERR_CHANOPRIVSNEEDED(req.arg[0]));
+        return false;
+    }
+    return true;
+}
+
 void Server::Mode(Client& cli, request& req)
 {
-
-    std::cout << "1 " << req.cmd << std::endl;
-    std::cout << "2 " << req.arg[0] << std::endl;
     std::vector<std::string>::iterator it = std::find(cli._channel.begin(), cli._channel.end(), req.arg[0]);
-    // if (req.cmd == "mode" && req.arg[0] == "#rr")
-    // {
-    //     return;
-    // }
+    
     if (req.arg.size() < 2)
         return;
     if (req.arg[0] == cli.nickName && req.arg[1] == "+i")
@@ -400,15 +415,14 @@ void Server::Mode(Client& cli, request& req)
         send_message(cli.socket_fd , "MODE " + req.arg[0] + " +i\r\n");
         return;
     }
+    if (is_admin(req, cli) == false)
+        return;
     else
     {
-        std::cout << "hello : " << std::endl;
         for (size_t i = 0; i < channels.size(); i++)
         {
             if (channels[req.arg[0]])
             {
-                // std::cout << " arg 1 : "<< req.arg[1] << std::endl;
-                // std::cout << "helllllloooo " << std::endl;
                 if (it != cli._channel.end() && req.arg[1] == "+i")
                 {
                     std::cout << "mode i actived " << std::endl;

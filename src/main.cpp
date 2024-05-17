@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 17:29:06 by oryadi            #+#    #+#             */
-/*   Updated: 2024/05/14 16:20:46 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/05/16 22:53:52 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ int main(int argc, char **argv) {
 	
 	try {
 
-		// signal(SIGQUIT, Server::handler);
 		server.importConfig(argv[1], argv[2]);
 		server.hostServer();
 		server.awaitingTraffic();

@@ -6,7 +6,7 @@
 /*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/05/15 21:56:01 by hchaguer         ###   ########.fr       */
+/*   Updated: 2024/05/17 10:36:31 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,6 @@ void    Server::handleReadRequest(Client &client)
 		static std::string str1;
         buf[bytes_received] = '\0';
 		str1 += buf;
-		std::cout << "str : " << str1 << std::endl;
 		size_t pos = str1.find_first_of("\r\n");
 		if (pos != std::string::npos)
 		{
@@ -85,11 +84,8 @@ void    Server::handleReadRequest(Client &client)
 		std::string line;
 		iss >> req.cmd;
 		
-		// std::cout << "str : " << req.cmd << std::endl;
 		while (iss >> line)
-		{
 			req.arg.push_back(line);
-		}
     }
 	if (getAuthentified(client, req) == 3)
 	{
@@ -107,9 +103,7 @@ void    Server::handleReadRequest(Client &client)
 
 void	Server::awaitingTraffic()
 {
-	fd_set totalfds;
-	fd_set readfds;
-	fd_set writefds;
+	fd_set totalfds, readfds, writefds;
 
 	FD_ZERO(&totalfds);
 
@@ -133,12 +127,7 @@ void	Server::awaitingTraffic()
 		{
 			if(it->second.step == C_CLOSE_CONNECTION) clientsReadyToBeRemoved.push_back(it->first);
 			else if (FD_ISSET(it->first, &readfds))  // function of handling multiple file descriptors or sockets
-			{
-		        // std::cout << "0000000000000000000000" << std::endl;
 				handleReadRequest(it->second);
-		        // std::cout << "1111111111111111111111" << std::endl;
-			}
-			// else if (FD_ISSET(it->first, &writefds)) handleResponseRequest(it->second);
 		}
 
 		clearClients(clientsReadyToBeRemoved, totalfds);
