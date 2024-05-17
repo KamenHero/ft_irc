@@ -20,9 +20,8 @@ void Server::send_all_member(int sockfd, const std::string &message)
     }
 }
 
-void Server::send_just_member(const std::string &message, std::string channel, std::string nick)
+void Server::send_just_member(const std::string &message, std::string channel)
 {
-    (void)nick;
     std::vector<Client*> ::iterator it = channels[channel]->_members.begin();
     for (; it != channels[channel]->_members.end(); it++)
     {
@@ -30,4 +29,22 @@ void Server::send_just_member(const std::string &message, std::string channel, s
             std::cerr << "send() faild" << std::endl;
         break;
     }
+}
+
+bool Server::isAdmin(request& req, Client& cli)
+{
+    std::vector<Client*>::iterator it;
+    bool etat = false;
+    
+    for (it = channels[req.arg[1]]->admins.begin(); it !=  channels[req.arg[1]]->admins.end(); ++it)
+    {
+        if ((*it)->nickName == cli.nickName)
+        {
+            etat = true;
+            break;
+        }
+    }
+    if (!etat)
+        return false;
+    return true;
 }

@@ -2,9 +2,8 @@
 #define CHANNEL_HPP
 #pragma once
 
-#include "server.hpp"
 #include <string>
-
+#include "server.hpp"
 
 class   Channel {
 

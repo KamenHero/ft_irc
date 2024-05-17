@@ -50,7 +50,6 @@ void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
         
         str.erase(0,1);
         msg = ":" + cli.nickName + "!~" + cli.userName + "@localhost PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
-        // msg = ":" + cli.nickName + " PRIVMSG " + req.arg[0] + " :" + str + "\r\n";
         send(client_dest, msg.c_str(), msg.size(), 0);
 }
 
@@ -74,7 +73,7 @@ int Server::getAuthentified(Client& cli, request& req)
     }
     else if (req.cmd == "CAP")
     {
-        send_message(cli.socket_fd, "*\r\n");
+        send_message(cli.socket_fd, "*please enter the password\r\n");
     }
     else if (req.cmd == "WHOIS")
     {

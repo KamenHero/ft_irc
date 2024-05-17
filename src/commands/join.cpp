@@ -95,20 +95,17 @@ std::string Server::join(Client &client, request &p)
     {
         if ((*it).second->inviteOnly == false && channels[p.arg[0]]->invited == client.nickName)
         {
-            std::cout << "join 1" <<std::endl;
             (*it).second->inviteOnly = true;
             if (joinClient(client, p, it) == 1)
                 return "";
         }
         else if ((*it).second->inviteOnly == false && channels[p.arg[0]]->invited != client.nickName && !channels[p.arg[0]]->invited.empty())
         {
-            std::cout << "join 2 " << std::endl;
             send_message(client.socket_fd, ERR_INVITEONLYCHAN(client.nickName, p.arg[0]));
             return "";
         }
         else
         {
-            std::cout << "join 3" <<std::endl;
             if (joinClient(client, p, it) == 1)
                 return "";
         }
@@ -138,12 +135,12 @@ int Server::joinClient(Client& client, request& p, std::map<std::string,Channel*
             if (!channels[p.arg[0]]->_topic.empty())
             {
                 joinChannel(p.arg[0], client, p);
-                send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0], client.nickName);
+                send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0]);
             }
             else
             {
                 joinChannel(p.arg[0], client, p);
-                send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0], client.nickName);
+                send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0]);
             }
         }
     }
@@ -152,12 +149,12 @@ int Server::joinClient(Client& client, request& p, std::map<std::string,Channel*
         if (!channels[p.arg[0]]->_topic.empty())
         {
             joinChannel(p.arg[0], client,p);
-            send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0], client.nickName);
+            send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0]);
         }
         else
         {
             joinChannel(p.arg[0], client,p);
-            send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0], client.nickName);
+            send_just_member(RPL_JOINMSG(client.nickName, client.userName, p.arg[0]), p.arg[0]);
         }
     }
     return 0;
@@ -175,7 +172,7 @@ void Server::sendMSGToChannel(Client& cli, request& req)
         if ((*it)->socket_fd == cli.socket_fd)
         {
             etat = 1;
-            break;;
+            break;
         }
     }
     if (etat)
@@ -226,22 +223,21 @@ std::string Server::kick(Client &client, request &p)
                     continue;
                 }
                 std::vector<Client *>::iterator it = channels[p.arg[0]]->_members.begin();
-                // tan9alb 3la kila user fi channel
                 for (; it != channels[p.arg[0]]->_members.end(); ++it)
                 {
                     if (p.arg[1] == (*it)->nickName)
                     {
-                        // remove client mn channael
                         channels[p.arg[0]]->inviteOnly = false;
                         send_message((*it)->socket_fd, ": " + (*it1)->nickName + " KICK " + p.arg[0] + " " + p.arg[1] + " :You have been kicked\r\n");
                         (*it)->_channel.erase(std::find((*it)->_channel.begin(), (*it)->_channel.end(), p.arg[0]));
                         channels[p.arg[0]]->_members.erase(it);
+                        send_just_member(KICKUSER(client.nickName, client.userName, p.arg[0], p.arg[1]), p.arg[0]);
                         isExist = 1;
                         break;
                     }
                 }
                 if (!isExist)
-                    send_message(client.socket_fd, ERR_USERNOTINCHANNEL(p.arg[1], p.arg[0]));
+                    send_message(client.socket_fd, ERR_NOSUCHNICK(p.arg[1]));
             }
         }
         if (!etat)
@@ -256,8 +252,7 @@ std::string Server::kick(Client &client, request &p)
 // invite <nickname> <channel>
 std::string Server::invite(Client &client, request &p)
 {
-    bool etat = false;
-    if (p.arg.size() < 2 || p.arg.empty())
+    if (p.arg.size() < 2)
     {
         send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
         return "";
@@ -267,86 +262,83 @@ std::string Server::invite(Client &client, request &p)
         send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[1]));
         return "";
     }
-    std::vector<Client*> ::iterator it;
-    for (it = channels[p.arg[1]]->admins.begin(); it != channels[p.arg[1]]->admins.end(); ++it)
+    else if (client.nickName == p.arg[0])
     {
-        if ((*it)->nickName == client.nickName)
+        send_message(client.socket_fd, ERR_USERONCHANNEL(client.nickName, p.arg[1]));
+        return "";
+    }
+    else if (isAdmin(p, client) == false)
+    {
+        send_message(client.socket_fd, ERR_CHANOPRIVSNEEDED(p.arg[0]));
+        return "";
+    }
+    else {
+    
+        bool isMember = 0;
+        std::vector<Client *>::iterator itt;  // wax khona member
+        std::map<int, Client>::iterator it_1; // khona li ghadi t invite
+        for (itt = channels[p.arg[1]]->_members.begin(); channels[p.arg[1]]->_members.end() != itt; itt++)
         {
-            etat = true;
-            if (client.nickName == p.arg[0])
+            if ((*itt)->nickName == client.nickName)
             {
-                send_message(client.socket_fd, ERR_USERONCHANNEL(client.nickName, p.arg[1]));
-                return "";
-            }
-            bool isMember = 0;
-            std::vector<Client *>::iterator itt;  // wax khona member
-            std::map<int, Client>::iterator it_1; // khona li ghadi t invite
-            for (itt = channels[p.arg[1]]->_members.begin(); channels[p.arg[1]]->_members.end() != itt; itt++)
-            {
-                if ((*itt)->nickName == client.nickName)
-                {
-                    isMember = 1;
-                    break;
-                }
-            }
-            bool isExist = 0;
-            for (it_1 = clients.begin(); it_1 != clients.end(); ++it_1)
-            {
-                if ((*it_1).second.nickName == p.arg[0])
-                {
-                    isExist = 1;
-                    break;
-                }
-            }
-            if (!isExist)
-            {
-                send_message(client.socket_fd, ERR_NOSUCHNICK(client.nickName));
-                return ("");
-            }
-            
-            std::map<std::string, Channel*>::iterator it;
-            for (it = channels.begin(); it != channels.end(); ++it)
-            {
-                if (channels[p.arg[1]])
-                {
-                    channels[p.arg[1]] ->inviteOnly = false;
-                    channels[p.arg[1]] ->hasPassword = false;
-                    channels[p.arg[1]]->invited = p.arg[0];
-                    send_message((it_1)->second.socket_fd, RPL_INVITING(client.nickName, p.arg[1]));
-                } 
+                isMember = 1;
+                break;
             }
         }
-    }
-    if (!etat) 
-    {
-            send_message(client.socket_fd, ERR_CHANOPRIVSNEEDED(p.arg[1]));
-            return "";
+        bool isExist = 0;
+        for (it_1 = clients.begin(); it_1 != clients.end(); ++it_1)
+        {
+            if ((*it_1).second.nickName == p.arg[0])
+            {
+                isExist = 1;
+                break;
+            }
+        }
+        if (isMember)
+        {
+            send_message(client.socket_fd, RPL_ALREAYREGISTRED(client.nickName, p.arg[1]));
+            return ("");
+        }
+        if (!isExist)
+        {
+            send_message(client.socket_fd, ERR_NOSUCHNICK(client.nickName));
+            return ("");
+        }
+        
+        std::map<std::string, Channel*>::iterator it;
+        for (it = channels.begin(); it != channels.end(); ++it)
+        {
+            if (channels[p.arg[1]])
+            {
+                channels[p.arg[1]] ->inviteOnly = false;
+                channels[p.arg[1]] ->hasPassword = false;
+                channels[p.arg[1]]->invited = p.arg[0];
+                send_message((it_1)->second.socket_fd, RPL_INVITING(client.nickName, p.arg[1], client.userName));
+            } 
+        }
     }
     return ("");
 }
 
 std::string Server::Topic(Client &client, request &p)
 {
-    std::vector<Client*> ::iterator it;
-    for (it = channels[p.arg[0]]->admins.begin(); it != channels[p.arg[0]]->admins.end(); ++it)
+
+    if (p.arg.size() < 2)
     {
-        if (p.arg.size() < 2 || p.arg.empty())
-        {
-            send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
-            return ("");
-        }
-        else if (std::find(client._channel.begin(), client._channel.end(), p.arg[0]) == client._channel.end())
-        {
-            send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
-            return ("");
-        }
-        else if ((*it)->nickName != client.nickName && channels[p.arg[0]]->changeTopic == true)
-        {
-            send_message(client.socket_fd, ERR_CHANOPRIVSNEEDED(p.arg[0]));
-            return "";
-        }
-        else
-        {
+        send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
+        return ("");
+    }
+    else if (std::find(client._channel.begin(), client._channel.end(), p.arg[0]) == client._channel.end())
+    {
+        send_message(client.socket_fd, ERR_NOSUCHCHANNEL(p.arg[0]));
+        return ("");
+    }
+    else if (is_admin(p, client) == false && channels[p.arg[0]]->changeTopic == true)
+    {
+        send_message(client.socket_fd, ERR_CHANOPRIVSNEEDED(p.arg[0]));
+        return "";
+    }
+    else {
             bool isMember = 0;
             std::vector<Client *>::iterator itt; // wax khona member
             for (itt = channels[p.arg[0]]->_members.begin(); channels[p.arg[0]]->_members.end() != itt; itt++)
@@ -373,11 +365,9 @@ std::string Server::Topic(Client &client, request &p)
                 topic.erase(0, 1);
                 channels[p.arg[0]]->set_topic(topic);
                 send_message(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name , topic));
-                send_message(client.socket_fd, RPL_TOPICWHOTIME(client.nickName, channels[p.arg[0]]->_name, (*it)->nickName));
-                send_all_member(client.socket_fd, RPL_TOPIC(client.nickName, channels[p.arg[0]]->_name, topic));
+                send_all_member(client.socket_fd, RPL_TOPIC(client.nickName, p.arg[0], channels[p.arg[0]]->get_topic()));
                 return ("");
             }
-        }
     }
     return ("");
 }
@@ -387,7 +377,7 @@ bool Server::is_admin(request& req, Client& cli)
     std::vector<Client*>::iterator it;
     bool etat = false;
     
-    for (it =  channels[req.arg[0]]->admins.begin(); it !=  channels[req.arg[0]]->admins.end(); ++it)
+    for (it = channels[req.arg[0]]->admins.begin(); it !=  channels[req.arg[0]]->admins.end(); ++it)
     {
         if ((*it)->nickName == cli.nickName)
         {
@@ -396,10 +386,7 @@ bool Server::is_admin(request& req, Client& cli)
         }
     }
     if (!etat)
-    {
-        send_message(cli.socket_fd, ERR_CHANOPRIVSNEEDED(req.arg[0]));
         return false;
-    }
     return true;
 }
 
@@ -411,12 +398,14 @@ void Server::Mode(Client& cli, request& req)
         return;
     if (req.arg[0] == cli.nickName && req.arg[1] == "+i")
     {
-        std::cout << "hello " << req.arg[1] << std::endl;
         send_message(cli.socket_fd , "MODE " + req.arg[0] + " +i\r\n");
         return;
     }
     if (is_admin(req, cli) == false)
+    {
+        send_message(cli.socket_fd, ERR_CHANOPRIVSNEEDED(req.arg[0]));
         return;
+    }
     else
     {
         for (size_t i = 0; i < channels.size(); i++)
