@@ -17,6 +17,7 @@ HEADERS = headers/server.hpp headers/client.hpp
 
 NAME = ircserv
 
+.SILENT:
 all: $(NAME)
 
 $(NAME): $(SRCS) $(HEADERS)

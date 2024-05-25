@@ -75,7 +75,6 @@ std::string Server::join(Client &client, request &p)
     }
     else if (it == channels.end())
     {
-        std::cout << "creating channel " << std::endl;
         createChannel(p.arg[0], client, p);
         return "";
     }
@@ -87,7 +86,6 @@ std::string Server::join(Client &client, request &p)
     }
     else if ((*it).second->inviteOnly == true)
     {
-        std::cout << "invite only condition" << std::endl;
         send_message(client.socket_fd, ERR_INVITEONLYCHAN(client.nickName, p.arg[0]));
         return "";
     }
@@ -117,17 +115,16 @@ std::string Server::join(Client &client, request &p)
 int Server::joinClient(Client& client, request& p, std::map<std::string,Channel*>::iterator it)
 {
     (void)it;
-    (void)p;
     if (channels[p.arg[0]]->hasPassword == true)
     {
         if (p.arg.size() != 2)
         {
-            send_message(client.socket_fd, ERR_BADCHANNELKEY(p.arg[0]));
+            send_message(client.socket_fd, ERR_BADCHANNELKEY(client.nickName, p.arg[0]));
             return 1;
         }
         else if (p.arg[1] != channels[p.arg[0]]->_password)
         {
-            send_message(client.socket_fd, ERR_INVALIDKEY(p.arg[0]));
+            send_message(client.socket_fd, ERR_INVALIDKEY(client.nickName,p.arg[0]));
             return 1;
         }
         else if (p.arg[1] == channels[p.arg[0]]->_password)
@@ -197,7 +194,6 @@ void Server::sendMSGToChannel(Client& cli, request& req)
 std::string Server::kick(Client &client, request &p)
 {
     bool etat = false;
-    std::cout << channels[p.arg[0]]->inviteOnly << std::endl;
     if (p.arg.size() < 2 || p.arg.empty())
     {
         send_message(client.socket_fd, ERR_NEEDMOREPARAMS(p.cmd));
@@ -228,10 +224,9 @@ std::string Server::kick(Client &client, request &p)
                     if (p.arg[1] == (*it)->nickName)
                     {
                         channels[p.arg[0]]->inviteOnly = false;
-                        send_message((*it)->socket_fd, ": " + (*it1)->nickName + " KICK " + p.arg[0] + " " + p.arg[1] + " :You have been kicked\r\n");
+                        send_message((*it)->socket_fd, ":" + (*it1)->nickName + "!~" + (*it)->userName + "@localhost KICK " + p.arg[0] + " " + p.arg[1] + " :You have been kicked\r\n");
                         (*it)->_channel.erase(std::find((*it)->_channel.begin(), (*it)->_channel.end(), p.arg[0]));
                         channels[p.arg[0]]->_members.erase(it);
-                        send_just_member(KICKUSER(client.nickName, client.userName, p.arg[0], p.arg[1]), p.arg[0]);
                         isExist = 1;
                         break;
                     }
@@ -274,14 +269,14 @@ std::string Server::invite(Client &client, request &p)
     }
     else {
     
-        bool isMember = 0;
+        bool isMember = false;
         std::vector<Client *>::iterator itt;  // wax khona member
         std::map<int, Client>::iterator it_1; // khona li ghadi t invite
         for (itt = channels[p.arg[1]]->_members.begin(); channels[p.arg[1]]->_members.end() != itt; itt++)
         {
-            if ((*itt)->nickName == client.nickName)
+            if ((*itt)->nickName == p.arg[0])
             {
-                isMember = 1;
+                isMember = true;
                 break;
             }
         }
@@ -395,7 +390,9 @@ void Server::Mode(Client& cli, request& req)
     std::vector<std::string>::iterator it = std::find(cli._channel.begin(), cli._channel.end(), req.arg[0]);
     
     if (req.arg.size() < 2)
+    {
         return;
+    }
     if (req.arg[0] == cli.nickName && req.arg[1] == "+i")
     {
         send_message(cli.socket_fd , "MODE " + req.arg[0] + " +i\r\n");
@@ -414,13 +411,11 @@ void Server::Mode(Client& cli, request& req)
             {
                 if (it != cli._channel.end() && req.arg[1] == "+i")
                 {
-                    std::cout << "mode i actived " << std::endl;
                     channels[req.arg[0]]->inviteOnly = true;
                     send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +i\r\n");
                 }
                 else if (it != cli._channel.end() && req.arg[1] == "-i")
                 {
-                    std::cout << "mode i desactived " << std::endl;
                     channels[req.arg[0]]->inviteOnly = false;
                     send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -i\r\n");
                 }
@@ -436,9 +431,17 @@ void Server::Mode(Client& cli, request& req)
                 }
                 else if (it != cli._channel.end() && req.arg[1] == "+k")
                 {
-                    channels[req.arg[0]]->hasPassword = true;
-                    channels[req.arg[0]]->_password = req.arg[2];
-                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +k " + req.arg[2] + "\r\n");
+                    if (req.arg.size() > 2 && !req.arg[2].empty())
+                    {
+                        channels[req.arg[0]]->hasPassword = true;
+                        channels[req.arg[0]]->_password = req.arg[2];
+                        send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +k " + req.arg[2] + "\r\n");
+                    }
+                    else 
+                    {
+                        send_message(cli.socket_fd, ERR_NEEDMOREPARAMS(req.cmd));
+                        return;
+                    }
                 }
                 else if (it != cli._channel.end() && req.arg[1] == "-k")
                 {
@@ -452,7 +455,6 @@ void Server::Mode(Client& cli, request& req)
                     {
                         if ((*it)->nickName == req.arg[2])
                         {
-                            std::cout << "+O : " << (*it)->nickName << std::endl;
                             (*it)->nickName = "@" + (*it)->nickName;
                             channels[req.arg[0]]->admins.push_back(*it);
                             send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +o " + req.arg[2] + "\r\n");
@@ -469,8 +471,7 @@ void Server::Mode(Client& cli, request& req)
                         if ("@" + req.arg[2] == (*it)->nickName)
                         {
                             (*it)->nickName.erase(0,1);
-                            std::cout << "-O : " << (*it)->nickName << std::endl;
-                            send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -o " + req.arg[2] + "\r\n");
+                            send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -o\r\n");
                             channels[req.arg[0]]->admins.erase(it);
                             return;
                         }
@@ -478,14 +479,21 @@ void Server::Mode(Client& cli, request& req)
                 }
                 else if (it != cli._channel.end() && req.arg[1] == "+l")
                 {
-                    channels[req.arg[0]]->maxsize = std::atoi(req.arg[2].c_str());
-                    channels[req.arg[0]]->isLimit = true;
-                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +l " + req.arg[2] + "\r\n");
+                    if (req.arg.size() > 2 && !req.arg[2].empty())
+                    {
+                        channels[req.arg[0]]->maxsize = std::atoi(req.arg[2].c_str());
+                        channels[req.arg[0]]->isLimit = true;
+                        send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " +l " + req.arg[2] + "\r\n");
+                    }
+                    else {
+                        send_message(cli.socket_fd, ERR_NEEDMOREPARAMS(req.cmd));
+                        return;
+                    }
                 }
                 else if (it != cli._channel.end() && req.arg[1] == "-l")
                 {
                     channels[req.arg[0]]->isLimit = false;
-                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -l " + req.arg[2] + "\r\n");
+                    send_message(cli.socket_fd , ":" + cli.nickName + " MODE " + req.arg[0] + " -l\r\n");
                 }
                 else
                     return ;

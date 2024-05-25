@@ -54,6 +54,7 @@ class Server {
 		void	handleResponseRequest(Client &client);
 		void	handleReadRequest(Client &client);
 		~Server();
+		void quit(Client& cli);
 
 	/*-------------------------------CPMMAND-----------------------------------------------------*/
 		void send_message(int sockfd, const std::string &message);

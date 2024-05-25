@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   awaiting_traffic.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oryadi <oryadi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hchaguer <hchaguer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/28 00:20:44 by hchaguer          #+#    #+#             */
-/*   Updated: 2024/05/17 16:56:12 by oryadi           ###   ########.fr       */
+/*   Updated: 2024/05/25 22:33:41 by hchaguer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void    Server::handleReadRequest(Client &client)
     char buf[1024];
 	request req;
 
-	std::memset(buf, 0, sizeof(buf));
+	std::memset(buf, 0, sizeof(buf)); 
     int bytes_received = recv(client.socket_fd, buf, sizeof(buf) - 1, 0);
 
 	if (bytes_received <= 0)
@@ -80,12 +80,12 @@ void    Server::handleReadRequest(Client &client)
 			str = str1.substr(0, pos);
 			str1.clear();
 		}
-		std::stringstream iss(str);
+		std::stringstream iss(str); // user useranem hostname server realname 
 		std::string line;
-		iss >> req.cmd;
+		iss >> req.cmd; // user  
 		
 		while (iss >> line)
-			req.arg.push_back(line);
+			req.arg.push_back(line); //  useranem hostname server realname  
     }
 	if (getAuthentified(client, req) == 3)
 	{
@@ -93,8 +93,6 @@ void    Server::handleReadRequest(Client &client)
 		{
 			send_message(client.socket_fd, RPL_WELCOME(client.nickName));
 			send_message(client.socket_fd, RPL_YOURHOST(client.nickName, client.serverName));
-			send_message(client.socket_fd, RPL_CREATED(client.nickName));
-			send_message(client.socket_fd, RPL_MYINFO(client.nickName, client.serverName));
 			std::cout << client.nickName << " Welcome to irc server!" << std::endl;
 			client.authenticated = true;
 		}

@@ -1,4 +1,5 @@
 #include "../../headers/server.hpp"
+#include <cstddef>
 #include <string>
 
 void Server::send_message(int sockfd, const std::string& message)
@@ -48,3 +49,5 @@ bool Server::isAdmin(request& req, Client& cli)
         return false;
     return true;
 }
+
+

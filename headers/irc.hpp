@@ -8,8 +8,6 @@
 
 #define RPL_WELCOME(nickname)   (":irc.server.com 001 " + nickname + " :Welcome to the IRC Server, " + nickname + "!\r\n")
 #define RPL_YOURHOST(client, servername) (":irc.server.com 002 " + client + " :Your host is " + servername + ", running version IRCd-1.0\r\n")
-#define RPL_CREATED(client) (":irc.server.com 003 " + client + " :This server was created on January 1, 2022\r\n")
-#define RPL_MYINFO(nickname, servername)    (":irc.server.com 004 " + nickname + servername + " IRCd-1.0 <available user modes> <available channel modes> [<channel modes with a parameter>]\r\n")
 
 #define ERR_PASSWDMISMATCH()  (" ERROR 464 :Password incorrect\r\n")
 #define ERR_NEEDMOREPARAMS(cmd) (": 461 " + cmd + " :Not enough parameters\r\n")
@@ -36,16 +34,16 @@
 #define RPL_JOINMSG(nick, username, channel) (":" + nick + "!" + username + "@localhost JOIN :" + channel + "\r\n")
 // :john!john_user@localhost JOIN :#yox  :<nick>!<user>@<host> JOIN :<channel>
 #define ERR_INVALIDMODEPARAM(channel) (":localhost 696 " + channel + " :Invalid mode parameter\r\n")
-#define ERR_INVALIDKEY(channel) (":localhost 525 " + channel + " :Invalid channel key\r\n")
-#define ERR_BADCHANNELKEY(channel) (":475 " + channel + " :Cannot join channel (+k)\r\n")
+#define ERR_INVALIDKEY(nick, channel) (": 475 " + nick + " " + channel +" :Invalid channel key\r\n")
+#define ERR_BADCHANNELKEY(nick, channel) (": 475 " + nick + " " + channel +" :Cannot join channel (+k)\r\n")
+#define ERR_INVITEONLYCHAN(nick, channel) (": 473 " + nick + " " + channel + " :Cannot join channel (+i)\r\n")
 #define ERR_USERNOTINCHANNEL(nick,channel) (": 441 " + nick + " " + channel + " :You are not in that channel\r\n")
 #define ERR_CHANNELISFULL(nick, channel) (": 471 " + nick + " " + channel + " :Channel is full\r\n")
 #define RPL_ALREAYREGISTRED(nick, channel) (": 462 " + nick + " " + channel + " :already on that channel\r\n")
-#define ERR_INVITEONLYCHAN(nick, channel) (": 473 " + nick + " " + channel + " :Cannot join channel (+i)\r\n")
 #define ERR_KICKYOUSELF(nick) (": 488 " + nick + " :You can not kick yourself\r\n")
 #define ERR_USERONCHANNEL(nick, channel) (": 443 " + nick + " " + channel + " :is already on channel\r\n")
 #define ERR_NOTONCHANNEL(nick, channel) (": 442 " + nick + " " + channel + " :You're not on that channel\r\n")
 #define RPL_INVITING(nick, channel,user) (":localhost 341 " + nick + " " + channel + user +" :invite in channel!\r\n")
 #define RPL_TOPICWHOTIME(nick, channel, admin) (": 333 " + nick + " " + channel + " " + admin + "\r\n")
-#define QUIT(fd, nick) (":" + fd + "!~" + nick + "@localhost QUIT leaving the channel\r\n")
+#define QUIT(nick, user) (":" + nick + "!~" + user + "@localhost QUIT \r\n")
 

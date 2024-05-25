@@ -36,7 +36,7 @@ void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
     std::string msg;
     std::string str;
 
-    if (searchForDestination(req) == 0)
+    if (searchForDestination(req) == -1)
     {
         send_message(cli.socket_fd, ERR_NOSUCHNICK(req.arg[0]));
         return;
@@ -53,7 +53,15 @@ void Server::sendMessageToClient(request& req, Client& cli, int client_dest)
         send(client_dest, msg.c_str(), msg.size(), 0);
 }
 
-
+void Server::quit(Client& cli)
+{
+    if (cli.socket_fd)
+    {
+        send_message(cli.socket_fd, QUIT(cli.nickName, cli.userName));
+        std::cout << "\e[0;31mClient " << cli.socket_fd << " disconnected " << std::endl;
+        cli.step = 4;
+    }
+}
 
 int Server::getAuthentified(Client& cli, request& req)
 { 
@@ -70,6 +78,10 @@ int Server::getAuthentified(Client& cli, request& req)
             client_dest = searchForDestination(req);
             sendMessageToClient(req, cli, client_dest);
         }
+    }
+    else if (req.cmd == "QUIT")
+    {
+        quit(cli);
     }
     else if (req.cmd == "CAP")
     {
